@@ -25,7 +25,7 @@ export default function Header() {
           Services
           <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-pink-600 transition-all group-hover:w-full"></span>
         </Link>
-        <Link href="/packages" className="relative group">
+        <Link href="/packagesarchive" className="relative group">
           Upcoming Packages
           <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-pink-600 transition-all group-hover:w-full"></span>
         </Link>
@@ -34,10 +34,10 @@ export default function Header() {
       {/* Right: Get in Touch Button */}
       <div>
         <Link
-          href="/contact"
+          href="/login"
           className="px-6 py-2 bg-pink-500 text-white font-semibold rounded-md shadow-md hover:bg-pink-600 transition-all"
         >
-          Get in Touch
+          Login
         </Link>
       </div>
     </header>
