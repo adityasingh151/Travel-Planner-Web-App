@@ -97,9 +97,9 @@ const Romantic: React.FC = () => {
             </div>
           </div>
           {/* Overlaying Plane Image */}
-          <div className="absolute top-[-40px] right-[-30px]">
+          {/* <div className="absolute top-[40px] right-[30px]">
             <img src="/plane.svg" alt="Plane" className="w-32 h-32 object-cover" />
-          </div>
+          </div> */}
         </div>
       </div>
     </div>

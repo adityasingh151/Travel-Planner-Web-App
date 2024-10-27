@@ -6,7 +6,7 @@ import TrendingPackages from './homepage/TrendingPackages'
 
 export default function Home() {
   return (
-    <div>
+    <div className='pt-20'>
       <Hero />
       <Romantic/>
       <TrendingPackages/>

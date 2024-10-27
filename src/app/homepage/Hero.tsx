@@ -24,7 +24,7 @@ export default function Hero() {
         <h1 className="text-4xl font-bold">
           Two roads diverged into woods, and I took the one less traveled by.
         </h1>
-        <form onSubmit={handleSubmit} className="mt-8 flex space-x-2">
+        <form onSubmit={handleSubmit} className="mt-8 flex space-x-2 bg-gray-500 p-5 rounded-md">
           <label htmlFor="where-to" className="sr-only">
             Where to?
           </label>
@@ -32,13 +32,13 @@ export default function Hero() {
             id="where-to"
             type="text"
             placeholder="Where to?"
-            className="px-4 py-2 text-black rounded"
+            className="px-4 py-2 text-white rounded bg-gray-500 "
           />
 
           <label htmlFor="travel-type" className="sr-only">
             Travel Type
           </label>
-          <select id="travel-type" className="px-4 py-2 text-black rounded">
+          <select id="travel-type" className="px-4 py-2 text-white rounded bg-gray-500 ">
             <option>Travel Type</option>
             <option>Adventure</option>
             <option>Relaxation</option>
@@ -47,7 +47,7 @@ export default function Hero() {
           <label htmlFor="duration" className="sr-only">
             Duration
           </label>
-          <select id="duration" className="px-4 py-2 text-black rounded">
+          <select id="duration" className="px-4 py-2 text-white rounded bg-gray-500 ">
             <option>Duration</option>
             <option>1-3 days</option>
             <option>4-7 days</option>
