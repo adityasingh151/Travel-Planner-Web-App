@@ -1,13 +1,53 @@
-// components/LoginPage.tsx
-
-import React from 'react';
+"use client";
+import { useState, useEffect } from "react";
+import axios from "axios";
+import toast, { Toaster } from "react-hot-toast";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 import Image from 'next/image';
+import { useAuth } from '@/app/AuthContext'; // Adjust the import path accordingly
 
 const LoginPage = () => {
+  const { login } = useAuth(); // Access the login function from context
+  const router = useRouter();
+  const [user, setuser] = useState({
+    email: "",
+    password: "",
+  });
+
+  const [buttonDisabled, setbuttonDisabled] = useState(true);
+  const [loading, setloading] = useState(false);
+
+  const onLogin = async () => {
+    try {
+      setloading(true);
+      // Call login function from context for manual login (email/password)
+      const response = await login(user.email, user.password);
+      console.log("response:",response)
+      setloading(false);
+      toast.success("Login Successful!");
+  
+      router.push("/"); // Redirect after successful login
+    } catch (error: any) {
+      console.log("Login Failed, Please try again!");
+      setloading(false);
+      toast.error(error.message);
+    }
+  };
+  
+
+  useEffect(() => {
+    if (user.email.length > 0 && user.password.length > 5) {
+      setbuttonDisabled(false);
+    } else {
+      setbuttonDisabled(true);
+    }
+  }, [user]);
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-white">
       <div className="flex w-full max-w-5xl mx-auto rounded-lg overflow-hidden shadow-lg">
-        
+        <Toaster />
         {/* Left Section with Image */}
         <div className="relative w-1/2 h-[600px]">
           <Image
@@ -21,7 +61,6 @@ const LoginPage = () => {
 
         {/* Right Section with Login Form */}
         <div className="w-1/2 bg-white p-16 relative">
-          
           {/* Airplane SVG Flying Above Welcome */}
           <div className="absolute -top-20 left-10 z-10">
             <img
@@ -38,28 +77,22 @@ const LoginPage = () => {
           </div>
 
           {/* Login Form */}
-          <form className="space-y-8 mt-8">
+          <div className="space-y-8 mt-8">
             <div>
-              <label htmlFor="email" className="block mb-2 text-sm text-gray-700">
-                Enter Email or Username
-              </label>
               <input
                 type="email"
-                id="email"
-                placeholder="Enter Email or Username"
-                className="w-full border border-pink-300 rounded-md p-3 focus:ring-2 focus:ring-pink-500"
+                placeholder="Enter Email"
+                onChange={(e) => setuser({ ...user, email: e.target.value })}
+                className="input input-bordered w-full bg-gray-200 text-black border-gray-700 focus:outline-none focus:border-pink-500"
               />
             </div>
 
             <div>
-              <label htmlFor="password" className="block mb-2 text-sm text-gray-700">
-                Enter Password
-              </label>
               <input
                 type="password"
-                id="password"
                 placeholder="Enter Password"
-                className="w-full border border-pink-300 rounded-md p-3 focus:ring-2 focus:ring-pink-500"
+                onChange={(e) => setuser({ ...user, password: e.target.value })}
+                className="input input-bordered w-full bg-gray-200 text-black border-gray-700 focus:outline-none focus:border-pink-500"
               />
             </div>
 
@@ -70,12 +103,13 @@ const LoginPage = () => {
             </div>
 
             <button
-              type="submit"
-              className="w-full bg-pink-500 text-white py-3 rounded-md hover:bg-pink-600"
+              onClick={onLogin}
+              disabled={buttonDisabled || loading} // Disable button if loading or disabled
+              className={`w-full bg-pink-500 text-white py-3 rounded-md hover:bg-pink-600 ${buttonDisabled || loading ? "opacity-50 cursor-not-allowed" : ""}`}
             >
-              LOGIN
+              {loading ? 'Logging in...' : 'LOGIN'}
             </button>
-          </form>
+          </div>
 
           {/* OR Divider */}
           <div className="flex items-center justify-center mt-8">
@@ -101,9 +135,9 @@ const LoginPage = () => {
           <div className="mt-8 text-center mb-10">
             <p className="text-sm text-gray-500">
               Don’t have an account?{' '}
-              <a href="/signup" className="text-pink-600 hover:underline">
+              <Link href="/signup" className="text-pink-600 hover:underline">
                 Register Now
-              </a>
+              </Link>
             </p>
           </div>
 
