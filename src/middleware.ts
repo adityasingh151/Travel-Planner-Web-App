@@ -6,7 +6,7 @@ export async function middleware(request: NextRequest) {
 
   // Define public and private routes
   const publicRoutes = ['/login', '/signup', '/verifyemail'];
-  const privateRoutes = ['/profile', '/build_pkg', '/packagesarchive'];
+  const privateRoutes = ['/profile', '/build_pkg'];
 
   // Get the session token from the NextAuth.js cookie
   const session = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET });
@@ -17,9 +17,12 @@ export async function middleware(request: NextRequest) {
   const isPublicRoute = publicRoutes.includes(path);
   const isPrivateRoute = privateRoutes.includes(path);
 
-  // If the user is authenticated and tries to access a public page, redirect them to the home page
+  // Allow authenticated users to access the signup page without redirecting
   if (isPublicRoute && isAuthenticated) {
-    return NextResponse.redirect(new URL('/', request.url));
+    if (path === '/login' || path === '/signup') {
+      return NextResponse.next(); // Allow access for post-auth checks
+    }
+    return NextResponse.redirect(new URL('/', request.url)); // Redirect to home if authenticated
   }
 
   // If the user is not authenticated and tries to access a private page, redirect them to the login page
@@ -31,7 +34,7 @@ export async function middleware(request: NextRequest) {
   return NextResponse.next();
 }
 
-// See "Matching Paths" below to learn more
+// Config for route matching
 export const config = {
   matcher: [
     '/',

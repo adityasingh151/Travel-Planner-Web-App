@@ -2,11 +2,11 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { Toaster } from "react-hot-toast";
-import { signIn, useSession, getSession } from "next-auth/react"; // Import signIn from next-auth
+import { signIn, useSession, getSession, signOut } from "next-auth/react"; // Import signIn from next-auth
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { storage } from "@/firebaseConfig/firebaseConfig";
 import { useAuth } from '@/app/AuthContext'; // Adjust the import path accordingly
@@ -16,14 +16,19 @@ interface UserData {
   lastName: string;
   email: string;
   password: string;
-  profilePicture: string;
   isVerified: boolean;
+}
+
+// Define the SignupResponse interface
+interface SignupResponse {
+  message: string;
 }
 
 
 const SignupPage = () => {
-  const { login } = useAuth(); // Access the login function from context
+  // const { login } = useAuth(); // Access the login function from context
   const router = useRouter();
+  const pathname = usePathname()
   const [user, setuser] = useState({
     firstName: "",
     lastName: "",
@@ -35,47 +40,68 @@ const SignupPage = () => {
   const [buttonDisabled, setbuttonDisabled] = useState(true);
   const [loading, setloading] = useState(false);
   const { data: session } = useSession();
-  const [isDataSaved, setIsDataSaved] = useState(false);
+  // const [isDataSaved, setIsDataSaved] = useState(false);
   
   useEffect(() => {
-    if (session && !isDataSaved) {
-      console.log("session:", session);
-      const { name, email, image, provider } = session.user;
+    // Prevent running if the session doesn't exist
+    if (!session) return; // If there's no session, do nothing
   
-      // Upload profile picture to Firebase Storage
-      uploadProfilePictureToFirebase(image!, email!).then((profilePictureUrl) => {
-        const userData: UserData = {
-          firstName: name!.split(" ")[0],
-          lastName: name!.split(" ")[1] || "",
-          email: email!,
-          password: provider || "oauth", // Set the password based on the provider
-          profilePicture: profilePictureUrl,
-          isVerified: true,
-        };
-  
-        const signupEndpoint =
-          provider === "google"
-            ? "/api/users/google-signup"
-            : provider === "twitter"
-            ? "/api/users/twitter-signup"
-            : provider === "github"
-            ? "/api/users/github-signup"
-            : "/api/users/signup"; // Fallback
-  
-        axios.post<UserData>(signupEndpoint, userData)
-          .then(() => {
-            toast.success(`${provider} Sign-In successful!`);
-            setIsDataSaved(true); // Set the flag to true once the data is saved
-            router.push("/"); // Redirect to the desired page
-          })
-          .catch((error) => {
-            console.error(`Error saving user data from ${provider}:`, error);
-            toast.error("Failed to save user data. Please try again!");
-          });
-      });
+    // Check if the user is already authenticated and on the signup page
+    if (session && (pathname === '/signup')) {
+      // If the user is authenticated and tries to access signup, redirect them to the homepage
+      router.push('/');
+      return; // Prevent further execution
     }
-  }, [session, isDataSaved]);
-
+  
+    console.log("session:", session);
+    const { name, email, provider } = session.user;
+  
+    const userData: UserData = {
+      firstName: name!.split(" ")[0],
+      lastName: name!.split(" ")[1] || "",
+      email: email!,
+      password: provider || "oauth", // Set the password based on the provider
+      isVerified: true,
+    };
+  
+    const signupEndpoint = provider === "google"
+      ? "/api/users/google-signup"
+      : provider === "twitter"
+        ? "/api/users/twitter-signup"
+        : provider === "github"
+          ? "/api/users/github-signup"
+          : "/api/users/signup"; // Fallback
+  
+    // Call the signup endpoint
+    const checkAndSignUp = async () => {
+      try {
+        console.log("signupendpoint & data: ", signupEndpoint, userData);
+        const response = await axios.post<SignupResponse>(signupEndpoint, userData);
+  
+        toast.success(`${provider} Sign-In successful!`);
+        router.push("/"); // Redirect to the desired page
+  
+      } catch (error: any) {
+        if (error.status === 400) {
+          // User already exists, show error and sign them out
+          router.push("/login");
+          signOut();  // Optionally handle sign out
+          toast.error("User already exists. Please sign in.");
+          return;
+        }
+        console.error(`Error saving user data from ${provider}:`, error);
+        toast.error(`Failed to save user data. Please try again! ${error.status}`);
+        signOut(); // Sign out on error
+      }
+    };
+  
+    // Call the function to handle signup
+    checkAndSignUp();
+  
+  }, [session, router]);
+  
+  
+  
   const onSignup = async () => {
     try {
       setloading(true);
@@ -128,38 +154,6 @@ const SignupPage = () => {
       setloading(false);
     }
   };
-  
-
-
-
-// Function to upload profile picture to Firebase Storage
-const uploadProfilePictureToFirebase = async (imageUrl: string, email: string): Promise<string> => {
-  try {
-    // Create a reference to the storage bucket
-    const storageRef = ref(storage, `profilePictures/${email}.jpg`);
-    
-    // Fetch the image as a blob
-    const response = await fetch(imageUrl);
-    const blob = await response.blob();
-
-    // Ensure the blob is of the correct MIME type (image/jpeg or image/png)
-    const imageBlob = blob.type.startsWith('image/') ? blob : new Blob([blob], { type: 'image/jpeg' });
-
-    // Upload the image blob to Firebase Storage
-    const snapshot = await uploadBytes(storageRef, imageBlob);
-    
-    // Get the download URL for the uploaded image
-    const downloadURL = await getDownloadURL(snapshot.ref);
-
-    return downloadURL;
-  } catch (error) {
-    console.error("Error uploading profile picture to Firebase:", error);
-    toast.error("Failed to upload profile picture. Please try again!");
-    throw error;
-  }
-};
-
-  
 
   useEffect(() => {
     if (
