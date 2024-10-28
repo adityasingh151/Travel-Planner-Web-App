@@ -52,15 +52,19 @@ export default function Header() {
       <nav className="flex space-x-8 text-lg font-medium text-pink-600">
         <Link href="/" className="relative group">
           Home
+          <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-pink-600 transition-all group-hover:w-full"></span>
         </Link>
         <Link href="/about" className="relative group">
           About
+          <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-pink-600 transition-all group-hover:w-full"></span>
         </Link>
         <Link href="/services" className="relative group">
           Services
+          <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-pink-600 transition-all group-hover:w-full"></span>
         </Link>
         <Link href="/packagesarchive" className="relative group">
           Upcoming Packages
+          <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-pink-600 transition-all group-hover:w-full"></span>
         </Link>
       </nav>
 

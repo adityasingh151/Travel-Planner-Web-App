@@ -9,9 +9,17 @@ export default function Hero() {
   const [isBlurred, setIsBlurred] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault(); // Prevent default form submission
-      router.push('/build_pkg');
- 
+    e.preventDefault();
+    const whereTo = (document.getElementById("where-to") as HTMLInputElement).value;
+    const travelType = (document.getElementById("travel-type") as HTMLSelectElement).value;
+    const duration = (document.getElementById("duration") as HTMLSelectElement).value;
+
+    // Automatically determine activity based on travel type
+    const activity = travelType.toLowerCase();
+
+    router.push(
+      `/build_pkg?whereTo=${encodeURIComponent(whereTo)}&travelType=${encodeURIComponent(travelType)}&duration=${encodeURIComponent(duration)}&activity=${encodeURIComponent(activity)}`
+    );
   };
 
   return (
@@ -33,24 +41,25 @@ export default function Hero() {
             type="text"
             placeholder="Where to?"
             className="px-4 py-2 text-white rounded bg-gray-500 "
+            required
           />
 
           <label htmlFor="travel-type" className="sr-only">
             Travel Type
           </label>
           <select id="travel-type" className="px-4 py-2 text-white rounded bg-gray-500 ">
-            <option>Travel Type</option>
-            <option>Adventure</option>
-            <option>Relaxation</option>
+            <option value="">Travel Type</option>
+            <option value="Adventure">Adventure</option>
+            <option value="Relaxation">Relaxation</option>
           </select>
 
           <label htmlFor="duration" className="sr-only">
             Duration
           </label>
           <select id="duration" className="px-4 py-2 text-white rounded bg-gray-500 ">
-            <option>Duration</option>
-            <option>1-3 days</option>
-            <option>4-7 days</option>
+            <option value="">Duration</option>
+            <option value="1-3 days">1-3 days</option>
+            <option value="4-7 days">4-7 days</option>
           </select>
 
           <button type="submit" className="px-4 py-2 bg-pink-500 rounded">
