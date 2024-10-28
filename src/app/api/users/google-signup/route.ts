@@ -8,7 +8,6 @@ interface UserData {
     lastName: string;
     email: string;
     password: string;
-    profilePicture: string;
     isVerified: boolean;
 }
 
@@ -20,7 +19,7 @@ export async function POST(req: Request) {
         const body = await req.json();  // Parse the incoming JSON body
         console.log("body: ",body);
 
-        const { firstName, lastName, email, password, profilePicture, isVerified }: UserData = body;
+        const { firstName, lastName, email, password, isVerified }: UserData = body;
 
         // Check if the user already exists
         const user = await User.findOne({ email });
@@ -34,7 +33,6 @@ export async function POST(req: Request) {
             lastName,
             email,
             password, // Consider hashing the password before saving
-            profilePicture,
             isVerified,
         });
 

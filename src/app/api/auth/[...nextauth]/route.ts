@@ -70,16 +70,15 @@ export const authOptions: NextAuthOptions = {
         token.id = user.id;
         token.name = user.name;
         token.email = user.email;
-        token.picture = user.image;
         token.provider = account?.provider; // Store the provider information
       }
       return token;
     },
     async session({ session, token }) {
+      // console.log("session: ",session)
       session.user.id = token.id as string;
       session.user.name = token.name;
       session.user.email = token.email;
-      session.user.image = token.picture;
       session.user.provider = token.provider; // Include provider in session
       return session;
     },
