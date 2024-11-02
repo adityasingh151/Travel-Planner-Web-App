@@ -6,7 +6,7 @@ export async function middleware(request: NextRequest) {
 
   // Define public and private routes
   const publicRoutes = ['/login', '/signup', '/verifyemail'];
-  const privateRoutes = ['/profile', '/build_pkg'];
+  const privateRoutes = ['/profile', '/build_pkg', '/package-details'];
 
   // Get the session token from the NextAuth.js cookie
   const session = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET });
@@ -46,5 +46,6 @@ export const config = {
     '/services',
     '/packagesarchive',
     '/build_pkg',
+    '/package-details'
   ],
 };

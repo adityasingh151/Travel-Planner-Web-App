@@ -35,7 +35,7 @@ export default function RootLayout({
                 <SessionWrapper session={session}>
                     <AuthProvider>
                         <Header />
-                        {children}
+                        <main className="flex-grow">{children}</main> {/* Use flex-grow for main */}
                         <Footer />
                     </AuthProvider>
                 </SessionWrapper>
