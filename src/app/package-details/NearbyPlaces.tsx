@@ -39,7 +39,7 @@ const NearbyPlaces: React.FC<{ destinationCity: string }> = ({ destinationCity }
     const fetchNearbyPlaces = async () => {
       try {
         const textSearchResponse = await fetch(
-          `https://maps.gomaps.pro/maps/api/place/textsearch/json?query=${destinationCity}&key=${apiKey}`
+          `${process.env.NEXT_PUBLIC_GOMAPS_DOMAIN}/textsearch/json?query=${destinationCity}&key=${apiKey}`
         );
         const textSearchData = await textSearchResponse.json();
 
@@ -47,14 +47,14 @@ const NearbyPlaces: React.FC<{ destinationCity: string }> = ({ destinationCity }
           const { lat, lng } = textSearchData.results[0].geometry.location;
 
           const nearbySearchResponse = await fetch(
-            `https://maps.gomaps.pro/maps/api/place/nearbysearch/json?location=${lat},${lng}&radius=500000&type=tourist_attraction&keyword=monument&key=${apiKey}`
+            `${process.env.NEXT_PUBLIC_GOMAPS_DOMAIN}/nearbysearch/json?location=${lat},${lng}&radius=500000&type=tourist_attraction&keyword=monument&key=${apiKey}`
           );
           const nearbySearchData = await nearbySearchResponse.json();
 
           const placesWithPhotos = nearbySearchData.results.map((place: any) => ({
             ...place,
             photoUrl: place.photos?.[0]?.photo_reference
-              ? `https://maps.gomaps.pro/maps/api/place/photo?maxwidth=400&photoreference=${place.photos[0].photo_reference}&key=${apiKey}`
+              ? `${process.env.NEXT_PUBLIC_GOMAPS_DOMAIN}/photo?maxwidth=400&photoreference=${place.photos[0].photo_reference}&key=${apiKey}`
               : "/placeholder-image.png",
           }));
 

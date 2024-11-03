@@ -13,6 +13,7 @@ const PackageDetails: React.FC = () => {
   const destinationCity = searchParams.get("destinationCity");
   const startDate = searchParams.get("startDate");
   const endDate = searchParams.get("endDate");
+  const guests = Number(searchParams.get("guests"))
 
   const origin = originRegion ?? "";
   const destination = destinationCity ?? "";
@@ -25,11 +26,10 @@ const PackageDetails: React.FC = () => {
 
         {destination && (
           <div >
-            <NearbyPlaces destinationCity={destination} />
-            {/* Uncomment the following lines when you want to show more components */}
-            {/* <Hotels destinationCity={destination} checkInDate={startDate ?? ""} checkOutDate={endDate ?? ""} />
+            {/* <NearbyPlaces destinationCity={destination} />
+            <Hotels destinationCity={destination} checkInDate={startDate ?? ""} checkOutDate={endDate ?? ""} guests={guests ?? 2} /> */}
             <Trains origin={origin} destination={destination} departureDate={startDate ?? ""} arrivalDate={endDate ?? ""} />
-            <Flights origin={origin} destination={destination} departureDate={startDate ?? ""} arrivalDate={endDate ?? ""} /> */}
+            {/* <Flights origin={origin} destination={destination} departureDate={startDate ?? ""} arrivalDate={endDate ?? ""} /> */}
           </div>
         )}
       </div>
