@@ -9,7 +9,7 @@ interface TrainProps {
   departureDate: string;
   arrivalDate: string;
   chosenItems: any[]; // Accept chosen items as a prop
-  onChooseItem: (items: any[]) => void; // Prop for choosing items
+  onChooseItem: (item: { title: string; type: string; details: any }) => void;
 }
 
 interface Stop {
@@ -179,7 +179,7 @@ const Trains: React.FC<TrainProps> = ({
       {showModal && selectedTrain && (
          <>
          <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-40"></div>
-         <dialog id="my_modal_5" className="modal modal-bottom sm:modal-middle" open>
+         <dialog role="dialog" aria-labelledby="modal-title" aria-describedby="modal-desc" id="my_modal_5" className="modal modal-bottom sm:modal-middle" open>
            <div className="modal-box p-6 rounded-lg z-50 relative bg-white dark:bg-gray-800 shadow-lg">
              <h3 className="font-bold text-2xl text-gray-800 dark:text-white mb-4">{selectedTrain.title}</h3>
              <p className="text-md text-gray-700 dark:text-gray-300 mb-4">

@@ -1,17 +1,24 @@
-// Hotels.tsx
 import React, { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faStar as filledStar, faStarHalfAlt, faStar as emptyStar, faArrowLeft, faArrowRight } from "@fortawesome/free-solid-svg-icons";
+import { faStar as filledStar, faStarHalfAlt, faStar as emptyStar, faArrowLeft, faArrowRight, faPlus, faMinus } from "@fortawesome/free-solid-svg-icons";
 import useWindowDimensions from "@/helpers/useWindowDimensions"; // Helper to detect screen width
 
+type ChosenItem = {
+  title: string;
+  type: string;
+  details: any;
+};
 interface HotelsProps {
   destinationCity: string;
   checkInDate?: string | string[];
   checkOutDate?: string | string[];
   guests?: number;
+  onChooseItem: (item: { title: string; type: string; details: any }) => void;
+  chosenItems: { title: string; type: string; details: any }[];
 }
 
-const Hotels: React.FC<HotelsProps> = ({ destinationCity, checkInDate, checkOutDate, guests }) => {
+
+const Hotels: React.FC<HotelsProps> = ({ destinationCity, checkInDate, checkOutDate, guests, onChooseItem, chosenItems }) => {
   const [hotels, setHotels] = useState<any[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const apiKey = process.env.NEXT_PUBLIC_SERP_API_KEY as string;
@@ -27,15 +34,8 @@ const Hotels: React.FC<HotelsProps> = ({ destinationCity, checkInDate, checkOutD
     try {
       const response = await fetch('/api/hotels-api', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          destinationCity,
-          checkInDate,
-          checkOutDate,
-          guests,
-        }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ destinationCity, checkInDate, checkOutDate, guests }),
       });
       const data = await response.json();
       setHotels(data.properties); // Adjust this according to actual data structure
@@ -72,15 +72,15 @@ const Hotels: React.FC<HotelsProps> = ({ destinationCity, checkInDate, checkOutD
         {Array.from({ length: fullStars }).map((_, index) => (
           <FontAwesomeIcon key={`full-${index}`} icon={filledStar} className="text-yellow-500" />
         ))}
-        {hasHalfStar && (
-          <FontAwesomeIcon icon={faStarHalfAlt} className="text-yellow-500" />
-        )}
+        {hasHalfStar && <FontAwesomeIcon icon={faStarHalfAlt} className="text-yellow-500" />}
         {Array.from({ length: emptyStars }).map((_, index) => (
           <FontAwesomeIcon key={`empty-${index}`} icon={emptyStar} className="text-gray-300" />
         ))}
       </div>
     );
   };
+
+  const isChosen = (hotelName: string) => chosenItems?.some((item) => item.title === hotelName && item.type === "hotel");
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 mt-4 flex-1">
@@ -103,9 +103,7 @@ const Hotels: React.FC<HotelsProps> = ({ destinationCity, checkInDate, checkOutD
               <li
                 key={index}
                 className={`border dark:border-gray-700 rounded-lg shadow-md overflow-hidden flex-shrink-0 mx-2 ${
-                  itemsPerPage === 1
-                    ? "min-w-full"
-                    : `min-w-[calc(100%/${itemsPerPage})]`
+                  itemsPerPage === 1 ? "min-w-full" : `min-w-[calc(100%/${itemsPerPage})]`
                 }`}
               >
                 <img
@@ -115,12 +113,45 @@ const Hotels: React.FC<HotelsProps> = ({ destinationCity, checkInDate, checkOutD
                   onError={(e) => (e.currentTarget.src = "/placeholder-image.png")}
                 />
                 <div className="p-4">
-                  <h3 className="text-lg font-semibold text-gray-800 dark:text-white">{hotel.name}</h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-300">{hotel.description}</p>
-                  <p className="text-sm text-gray-600 dark:text-gray-300">Rate per night: {hotel.rate_per_night?.lowest}</p>
+                  <h3 className="text-lg font-semibold text-gray-800 dark:text-white">{hotel.name?.length > 35 ? `${hotel.name.slice(0,35)}...` : hotel.name}</h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-300">{hotel.description?.length>30 ? `${hotel.description.slice(0,30)}...` : hotel.description}</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-300">Rate per night: {hotel.rate_per_night ? `${hotel.rate_per_night.lowest}` : "Unavailable" }</p>
                   <div className="flex items-center mt-2">
                     {renderStars(hotel.overall_rating)}
                     <span className="ml-2 text-gray-500 dark:text-gray-400 text-sm">({hotel.reviews || 0} reviews)</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <a 
+                      href={`https://www.google.com/maps/search/?api=1&query=${hotel.name}`}
+                      className="mt-2 p-2 bg-pink-500 text-white rounded-lg hover:bg-pink-600 transition"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Get Direction
+                    </a>
+                    <button
+                      onClick={() =>
+                        onChooseItem({
+                          title: hotel.name,
+                          type: "hotel",
+                          details: {
+                            name: hotel.name,
+                            url: hotel.images?.[0]?.thumbnail || "/placeholder-image.png",
+                            description: hotel.description,
+                            rate_per_night: hotel.rate_per_night?.lowest,
+                            overall_rating: hotel.overall_rating,
+                            reviews: hotel.reviews,
+                          },
+                        })
+                      }
+                      className={`mt-2 p-2 rounded-lg transition ${
+                        isChosen(hotel.name)
+                          ? "bg-red-500 hover:bg-red-600"
+                          : "bg-green-500 hover:bg-green-600"
+                      } text-white`}
+                    >
+                      {isChosen(hotel.name) ? "Remove" : "Add"}
+                    </button>
                   </div>
                 </div>
               </li>
