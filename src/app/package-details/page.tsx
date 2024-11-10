@@ -19,6 +19,13 @@ interface Train {
   stops: Stop[];
 }
 
+type ChosenItem = {
+  title: string;
+  type: string;
+  details: Train;
+};
+
+
 const PackageDetails: React.FC = () => {
   const searchParams = useSearchParams();
 
@@ -32,37 +39,34 @@ const PackageDetails: React.FC = () => {
   const destination = destinationCity ?? "";
 
   // State to hold chosen items
-  const [chosenItems, setChosenItems] = useState<any[]>([]);
+  const [chosenItems, setChosenItems] = useState<ChosenItem[]>([]);
 
   // Function to handle item selection
-  const handleChooseItem = (item: {
-    title: string;
-    type: string;
-    details: Train;
-  }) => {
-    // console.log("item: ",item)
-    setChosenItems((prev) => {
-      // console.log("Already prev: ",prev)
+ // Function to handle item selection
+ const handleChooseItem = (item: {
+  title: string;
+  type: string;
+  details: any; // Adjusted to store full details of item
+}) => {
+  setChosenItems((prev) => {
+    const isPlaceType = item.type === "place";
+
+    // If item is of type "place," we allow multiple items of this type
+    if (isPlaceType) {
       const sameItemExists = prev.find(
         (i) => i.title === item.title && i.type === item.type
       );
-      const otherTrainExists = prev.find((i) => i.type === item.type);
+      return sameItemExists
+        ? prev.filter((i) => i !== sameItemExists) // Remove if exists
+        : [...prev, item]; // Add if doesn't exist
+    }
 
-      if (sameItemExists) {
-        // console.log("sameItemEXists")
-        // If the same item exists, remove it to deselect
-        return prev.filter((i) => i !== sameItemExists);
-      } else if (otherTrainExists) {
-        // console.log("otherTrainExists")
-        // If another train exists, replace it with the new item
-        return [...prev.filter((i) => i !== otherTrainExists), item];
-      } else {
-        // console.log("nosameitemexist")
-        // Add the new item if it doesn't already exist
-        return [...prev, item];
-      }
-    });
-  };
+    // For types other than "place," allow only one instance of each type
+    return [...prev.filter((i) => i.type !== item.type), item];
+  });
+};
+
+
 
   return (
     <div className="w-full p-0">
@@ -81,9 +85,14 @@ const PackageDetails: React.FC = () => {
               onChooseItem={handleChooseItem} // Pass the handler to Trains
               chosenItems={chosenItems}
             />
-            <NearbyPlaces destinationCity={destination} />
-            <Hotels destinationCity={destination} checkInDate={startDate ?? ""} checkOutDate={endDate ?? ""} guests={guests ?? 2} />
-            <Flights origin={origin} destination={destination} departureDate={startDate ?? ""} arrivalDate={endDate ?? ""} />
+            <NearbyPlaces
+             destinationCity={destination}
+             onChooseItem={handleChooseItem}
+             chosenItems={chosenItems}
+            
+            />
+            <Hotels destinationCity={destination} checkInDate={startDate ?? ""} checkOutDate={endDate ?? ""} guests={guests ?? 2} onChooseItem={handleChooseItem} chosenItems={chosenItems} />
+            <Flights origin={origin} destination={destination} departureDate={startDate ?? ""} arrivalDate={endDate ?? ""} onChooseItem={handleChooseItem} chosenItems={chosenItems} />
           </div>
         )}
       </div>

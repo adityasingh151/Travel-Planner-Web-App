@@ -1,35 +1,30 @@
 import React, { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowLeft, faArrowRight } from "@fortawesome/free-solid-svg-icons";
-import useWindowDimensions from "@/helpers/useWindowDimensions"; // Helper to detect screen width
+import { faArrowLeft, faArrowRight, faPlus, faMinus } from "@fortawesome/free-solid-svg-icons";
+import useWindowDimensions from "@/helpers/useWindowDimensions";
 
 interface FlightsProps {
   origin: string;
   destination: string;
   departureDate?: string | string[];
   arrivalDate?: string | string[];
-  duration?: string;
-  airlineLogo?: string;
+  onChooseItem: (item: { title: string; type: string; details: any }) => void;
+  chosenItems: { title: string; type: string; details: any }[];
 }
 
-const Flights: React.FC<FlightsProps> = ({ origin, destination, departureDate, arrivalDate }) => {
+const Flights: React.FC<FlightsProps> = ({ origin, destination, departureDate, arrivalDate, onChooseItem, chosenItems }) => {
   const [flights, setFlights] = useState<any[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState<boolean>(false);
-  const apiKey = process.env.NEXT_PUBLIC_FLIGHT_API_KEY as string;
   const { width } = useWindowDimensions();
-  let itemsPerPage = 1;
-
-  if (width >= 1024) itemsPerPage = 4;
-  else if (width >= 768) itemsPerPage = 3;
-  else if (width >= 640) itemsPerPage = 2;
+  let itemsPerPage = width >= 1024 ? 4 : width >= 768 ? 3 : width >= 640 ? 2 : 1;
 
   const fetchFlights = async () => {
     setLoading(true);
     try {
-      const response = await fetch('/api/flights-api', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/flights-api", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ origin, destination, departureDate, arrivalDate }),
       });
       const data = await response.json();
@@ -47,16 +42,14 @@ const Flights: React.FC<FlightsProps> = ({ origin, destination, departureDate, a
   }, [origin, destination, departureDate, arrivalDate]);
 
   const handleNext = () => {
-    if (currentIndex + itemsPerPage < flights.length) {
-      setCurrentIndex(currentIndex + 1);
-    }
+    if (currentIndex + itemsPerPage < flights.length) setCurrentIndex((prevIndex) => prevIndex + itemsPerPage);
   };
 
   const handlePrev = () => {
-    if (currentIndex > 0) {
-      setCurrentIndex(currentIndex - 1);
-    }
+    if (currentIndex - itemsPerPage >= 0) setCurrentIndex((prevIndex) => prevIndex - itemsPerPage);
   };
+
+  const isChosen = (flightNumber: string) => chosenItems.some((item) => item.title === flightNumber && item.type === "flight");
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 mt-4 flex-1">
@@ -68,23 +61,12 @@ const Flights: React.FC<FlightsProps> = ({ origin, destination, departureDate, a
         <div className="text-center text-gray-500 dark:text-gray-400">No flights found for the selected route.</div>
       ) : (
         <div className="flex items-center justify-between mt-4">
-          <button 
-            onClick={handlePrev} 
-            disabled={currentIndex === 0} 
-            className={`text-gray-500 dark:text-gray-400 ${currentIndex === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
-            aria-label="Previous flight"
-          >
+          <button onClick={handlePrev} disabled={currentIndex === 0} className="text-gray-500 dark:text-gray-400 disabled:opacity-50">
             <FontAwesomeIcon icon={faArrowLeft} />
           </button>
 
           <div className="overflow-hidden w-full">
-            <ul
-              className="flex transition-transform"
-              style={{
-                transform: `translateX(-${currentIndex * (100 / itemsPerPage)}%)`,
-                transition: 'transform 0.3s ease-in-out',
-              }}
-            >
+            <ul className="flex transition-transform" style={{ transform: `translateX(-${currentIndex * (100 / itemsPerPage)}%)`, transition: "transform 0.3s ease-in-out" }}>
               {flights.map((flight, index) => (
                 <li
                   key={index}
@@ -99,30 +81,47 @@ const Flights: React.FC<FlightsProps> = ({ origin, destination, departureDate, a
                     onError={(e) => (e.currentTarget.src = "/placeholder-image.png")}
                   />
                   <div className="p-4">
-                    <h3 className="text-lg font-semibold text-gray-800 dark:text-white">
-                      {flight.airline} {flight.flightNumber}
-                    </h3>
-                    {/* <p className="text-sm text-gray-600 dark:text-gray-300"> */}
-                      <p className="text-sm text-gray-600 dark:text-gray-300"><span className="font-semibold text-gray-800 dark:text-white">From:</span> {flight.departureAirport} </p>
-                      <p className="text-sm text-gray-600 dark:text-gray-300"><span className="font-semibold text-gray-800 dark:text-white"> To:</span> {flight.arrivalAirport}</p>
-                    {/* </p> */}
-                    <p className="text-sm text-gray-600 dark:text-gray-300">
-                      <span className="font-semibold text-gray-800 dark:text-white">Departure:</span> {flight.departureTime}</p>
-                    <p className="text-sm text-gray-600 dark:text-gray-300"><span className="font-semibold text-gray-800 dark:text-white">Arrival:</span> {flight.arrivalTime}</p>
-                    <p className="text-sm text-gray-600 dark:text-gray-300"><span className="font-semibold text-gray-800 dark:text-white">Duration:</span> {flight.duration} minutes</p>
-                    <p className="text-sm text-gray-600 dark:text-gray-300"><span className="font-semibold text-gray-800 dark:text-white">Price:</span> ₹{flight.price}</p>
+                    <h3 className="text-lg font-semibold text-gray-800 dark:text-white">{flight.airline} {flight.flightNumber}</h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-300"><strong>From:</strong> {flight.departureAirport}</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-300"><strong>To:</strong> {flight.arrivalAirport}</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-300"><strong>Departure:</strong> {flight.departureTime}</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-300"><strong>Arrival:</strong> {flight.arrivalTime}</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-300"><strong>Duration:</strong> {flight.duration} minutes</p>
+                    <div className="flex justify-between mt-2">
+                      <p className="text-sm text-gray-600 dark:text-gray-300"><strong>Price:</strong> ₹{flight.price} ({flight.roundType})</p>
+                      <button
+                        onClick={() =>
+                          onChooseItem({
+                            title: flight.flightNumber,
+                            type: "flight",
+                            details: {
+                              airline: flight.airline,
+                              departure: flight.departureAirport,
+                              arrival: flight.arrivalAirport,
+                              departureTime: flight.departureTime,
+                              arrivalTime: flight.arrivalTime,
+                              duration: flight.duration,
+                              price: flight.price,
+                              roundType: flight.roundType,
+                            },
+                          })
+                        }
+                        className={`p-2 rounded-lg transition ${
+                          isChosen(flight.flightNumber)
+                            ? "bg-red-500 hover:bg-red-600"
+                            : "bg-green-500 hover:bg-green-600"
+                        } text-white`}
+                      >
+                        {isChosen(flight.flightNumber) ? "Remove" : "Add"}
+                      </button>
+                    </div>
                   </div>
                 </li>
               ))}
             </ul>
           </div>
 
-          <button 
-            onClick={handleNext} 
-            disabled={currentIndex + itemsPerPage >= flights.length} 
-            className={`text-gray-500 dark:text-gray-400 ${currentIndex + itemsPerPage >= flights.length ? 'opacity-50 cursor-not-allowed' : ''}`}
-            aria-label="Next flight"
-          >
+          <button onClick={handleNext} disabled={currentIndex + itemsPerPage >= flights.length} className="text-gray-500 dark:text-gray-400 disabled:opacity-50">
             <FontAwesomeIcon icon={faArrowRight} />
           </button>
         </div>
