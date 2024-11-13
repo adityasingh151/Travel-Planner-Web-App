@@ -1,11 +1,15 @@
 "use client";
 import { useSearchParams } from "next/navigation";
-import Image from "next/image";
 import NearbyPlaces from "./NearbyPlaces";
 import Hotels from "./Hotels";
 import Trains from "./Trains";
 import Flights from "./Flights";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/app/AuthContext";
+import PremiumLoading from "../PremiulLoading";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 interface Stop {
   name: string;
@@ -25,98 +29,135 @@ type ChosenItem = {
   details: Train;
 };
 
-
 const PackageDetails: React.FC = () => {
+  const router = useRouter()
   const searchParams = useSearchParams();
-
   const originRegion = searchParams.get("originRegion");
   const destinationCity = searchParams.get("destinationCity");
   const startDate = searchParams.get("startDate");
   const endDate = searchParams.get("endDate");
   const guests = Number(searchParams.get("guests"));
-
   const origin = originRegion ?? "";
   const destination = destinationCity ?? "";
 
-  // State to hold chosen items
   const [chosenItems, setChosenItems] = useState<ChosenItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true); // Loading state
+  const { setChosenItems: updateContextChosenItems } = useAuth(); // Import from context
 
-  // Function to handle item selection
- // Function to handle item selection
- const handleChooseItem = (item: {
-  title: string;
-  type: string;
-  details: any; // Adjusted to store full details of item
-}) => {
-  setChosenItems((prev) => {
-    const isPlaceType = item.type === "place";
+  useEffect(() => {
+    // Simulate loading data (e.g., API call or initial setup)
+    const timer = setTimeout(() => {
+      setIsLoading(false); // Set loading to false after components are "loaded"
+    }, 1000); // Adjust this timeout as necessary to match your loading time
 
-    // If item is of type "place," we allow multiple items of this type
-    if (isPlaceType) {
-      const sameItemExists = prev.find(
+    return () => clearTimeout(timer); // Clean up the timeout if the component is unmounted
+  }, []);
+
+  const handleChooseItem = (item: {
+    title: string;
+    type: string;
+    details: any;
+  }) => {
+    setChosenItems((prev) => {
+      const isPlaceType = item.type === "place";
+      const sameItemExists = prev.some(
         (i) => i.title === item.title && i.type === item.type
       );
-      return sameItemExists
-        ? prev.filter((i) => i !== sameItemExists) // Remove if exists
-        : [...prev, item]; // Add if doesn't exist
+
+      if (sameItemExists) {
+        return prev.filter(
+          (i) => !(i.title === item.title && i.type === item.type)
+        );
+      } else {
+        if (isPlaceType) {
+          return [...prev, item];
+        } else {
+          return [...prev.filter((i) => i.type !== item.type), item];
+        }
+      }
+    });
+  };
+
+  const handleItinerary = () => {
+    // Check if at least one item with type="place" exists
+    const hasPlace = chosenItems.some(item => item.type === "place");
+
+    if (!hasPlace) {
+      // Show toast message if no "place" item exists
+      console.log("No palce is selected.")
+      toast.error("Please select at least one place.");
+    } else {
+      // Update context and navigate to itinerary page
+      console.log(chosenItems)
+      updateContextChosenItems(chosenItems); // Save to context
+      // router.push("/tourinfo/tourplan");
     }
+  };
 
-    // For types other than "place," allow only one instance of each type
-    return [...prev.filter((i) => i.type !== item.type), item];
-  });
-};
-
-
+  if (isLoading) {
+    return <PremiumLoading />; // Show loading spinner until data is loaded
+  }
 
   return (
-    <div className="w-full p-0">
-      <div className="bg-white rounded-lg shadow-lg p-8">
-        <h1 className="text-2xl font-bold text-gray-900 mb-4 mt-20 text-center">
+    <div className="w-full p-4 sm:p-6 md:p-8 bg-white dark:bg-gray-900">
+       <ToastContainer position="top-center" autoClose={3000} />
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 md:p-8">
+        <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4 mt-8 text-center">
           Travel Package Details
         </h1>
 
         {destination && (
-          <div>
+          <div className="space-y-4 md:space-y-6">
             <Trains
               origin={origin}
               destination={destination}
               departureDate={startDate ?? ""}
               arrivalDate={endDate ?? ""}
-              onChooseItem={handleChooseItem} // Pass the handler to Trains
+              onChooseItem={handleChooseItem}
               chosenItems={chosenItems}
             />
             <NearbyPlaces
-             destinationCity={destination}
-             onChooseItem={handleChooseItem}
-             chosenItems={chosenItems}
-            
+              destinationCity={destination}
+              onChooseItem={handleChooseItem}
+              chosenItems={chosenItems}
             />
-            <Hotels destinationCity={destination} checkInDate={startDate ?? ""} checkOutDate={endDate ?? ""} guests={guests ?? 2} onChooseItem={handleChooseItem} chosenItems={chosenItems} />
-            <Flights origin={origin} destination={destination} departureDate={startDate ?? ""} arrivalDate={endDate ?? ""} onChooseItem={handleChooseItem} chosenItems={chosenItems} />
+            <Hotels
+              destinationCity={destination}
+              checkInDate={startDate ?? ""}
+              checkOutDate={endDate ?? ""}
+              guests={guests ?? 2}
+              onChooseItem={handleChooseItem}
+              chosenItems={chosenItems}
+            />
+            <Flights
+              origin={origin}
+              destination={destination}
+              departureDate={startDate ?? ""}
+              arrivalDate={endDate ?? ""}
+              onChooseItem={handleChooseItem}
+              chosenItems={chosenItems}
+            />
           </div>
         )}
       </div>
 
-      {/* Button to get itinerary */}
-      <div className="flex justify-center mt-4">
+      <div className="flex justify-center mt-6 relative">
         <button
-          className={`p-2 bg-blue-500 text-white rounded-lg ${
-            chosenItems.length === 0 ? "opacity-50 cursor-not-allowed" : ""
+          className={`p-4 px-8 bg-gradient-to-r from-pink-500 to-red-500 text-white font-bold text-lg rounded-xl shadow-lg ${
+            chosenItems.length === 0
+              ? "opacity-50 cursor-not-allowed"
+              : "transition-transform duration-300 transform hover:scale-105"
           }`}
           disabled={chosenItems.length === 0}
-          onClick={() => console.log("Get Itinerary:", chosenItems)} // Replace with your itinerary logic
+          onClick={handleItinerary}
         >
-          Get Itinerary
+          Generate AI Travel Blueprint
+          {chosenItems.length > 0 && (
+            <span className="absolute -top-2 -right-2 transform bg-red-600 dark:bg-yellow-500 text-white text-xs font-semibold rounded-full w-6 h-6 flex items-center justify-center">
+              {chosenItems.length}
+            </span>
+          )}
         </button>
-      </div>
-
-      {/* Additional Information Section (Optional) */}
-      <div className="mt-8 bg-gray-100 p-4 rounded-lg shadow-md">
-        <h2 className="text-xl font-semibold mb-2">More Information</h2>
-        <p className="text-gray-700">
-          For more details about your travel package, please contact our support
-          team.
-        </p>
       </div>
     </div>
   );

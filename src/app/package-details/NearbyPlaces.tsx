@@ -68,6 +68,7 @@ const NearbyPlaces: React.FC<{
           `${process.env.NEXT_PUBLIC_GOMAPS_DOMAIN}/textsearch/json?query=${destinationCity}&key=${apiKey}`
         );
         const textSearchData = await textSearchResponse.json();
+        console.log("destination: ", destinationCity,"apikey: ",apiKey, "textSearchData: ", textSearchData)
 
         if (textSearchData.results && textSearchData.results.length > 0) {
           const { lat, lng } = textSearchData.results[0].geometry.location;
