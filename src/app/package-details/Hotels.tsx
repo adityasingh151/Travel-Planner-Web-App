@@ -80,7 +80,10 @@ const Hotels: React.FC<HotelsProps> = ({ destinationCity, checkInDate, checkOutD
     );
   };
 
-  const isChosen = (hotelName: string) => chosenItems?.some((item) => item.title === hotelName && item.type === "hotel");
+  const isChosen = (hotelName: string) => chosenItems.some(
+    (item) => item.title === hotelName && item.type === "hotel"
+  );
+  
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 mt-4 flex-1">
