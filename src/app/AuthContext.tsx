@@ -17,6 +17,8 @@ interface AuthContextType {
   logout: () => Promise<void>;
   chosenItems: ChosenItem[];  // Add chosenItems to context
   setChosenItems: React.Dispatch<React.SetStateAction<ChosenItem[]>>;  // Provide method to update chosenItems
+  queryParams: string;  // Add queryParams to context
+  setQueryParams: React.Dispatch<React.SetStateAction<string>>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -29,6 +31,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const [chosenItems, setChosenItems] = useState<ChosenItem[]>([]);  // Local state for chosenItems
   const { data: session, status } = useSession();
+  const [queryParams, setQueryParams] = useState<string>('');
+
 
   useEffect(() => {
     const checkSession = async () => {
@@ -85,7 +89,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [chosenItems, isLoggedIn, email]);
 
   return (
-    <AuthContext.Provider value={{ username, email, profilePicture, isLoggedIn, login, logout, chosenItems, setChosenItems }}>
+    <AuthContext.Provider value={{ username, email, profilePicture, isLoggedIn, login, logout, chosenItems, setChosenItems, queryParams, setQueryParams }}>
       {children}
     </AuthContext.Provider>
   );

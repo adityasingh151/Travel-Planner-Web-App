@@ -75,7 +75,7 @@ useEffect(() => {
 }, [chosenItems]);
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
       <div className="relative h-[400px]">
         <Image
@@ -87,35 +87,85 @@ useEffect(() => {
         />
         <div className="absolute inset-0 flex flex-col items-center justify-center text-white">
           <p className="text-lg uppercase tracking-wider">Explore</p>
-          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold">Landscapes</h1>
+          <h1 className="text-6xl font-extrabold">Landscapes</h1>
+        </div>
+
+        {/* Transparent Navigation Tabs */}
+        <div className="absolute inset-x-0 bottom-0 mx-auto flex items-center justify-center bg-white bg-opacity-80 backdrop-filter backdrop-blur-lg rounded-lg shadow-lg max-w-4xl p-4">
+          <Link href="/tourinfo" className={`px-4 py-2 mx-2 font-semibold rounded-md ${pathname === '/tourinfo/information' ? 'bg-pink-500 text-white' : 'text-gray-600 hover:text-pink-600'}`}>
+            Information
+          </Link>
+          <Link href="/tourinfo/tourplan" className={`px-4 py-2 mx-2 font-semibold rounded-md ${pathname === '/tourinfo/tour-plan' ? 'bg-pink-500 text-white' : 'text-gray-600 hover:text-pink-600'}`}>
+            Tour Plan
+          </Link>
+          <Link href="/tourinfo/tourlocation" className={`px-4 py-2 mx-2 font-semibold rounded-md ${pathname === '/tourinfo/location' ? 'bg-pink-500 text-white' : 'text-gray-600 hover:text-pink-600'}`}>
+            Location
+          </Link>
         </div>
       </div>
 
-      {/* Navigation Tabs */}
-      <div className="absolute inset-x-0 bottom-0 mx-auto flex items-center justify-center bg-opacity-80 bg-white backdrop-filter backdrop-blur-lg rounded-lg shadow-lg max-w-4xl p-4">
-        <Link href="/tourinfo" className={`px-4 py-2 mx-2 font-semibold rounded-md ${pathname === '/tourinfo/information' ? 'bg-pink-500 text-white' : 'text-gray-600 hover:text-pink-600 dark:text-gray-300 dark:hover:text-pink-400'}`}>Information</Link>
-        <Link href="/tourinfo/tourplan" className={`px-4 py-2 mx-2 font-semibold rounded-md ${pathname === '/tourinfo/tour-plan' ? 'bg-pink-500 text-white' : 'text-gray-600 hover:text-pink-600 dark:text-gray-300 dark:hover:text-pink-400'}`}>Tour Plan</Link>
-        <Link href="/tourinfo/tourlocation" className={`px-4 py-2 mx-2 font-semibold rounded-md ${pathname === '/tourinfo/location' ? 'bg-pink-500 text-white' : 'text-gray-600 hover:text-pink-600 dark:text-gray-300 dark:hover:text-pink-400'}`}>Location</Link>
-      </div>
-
       {/* Main Content */}
-      <div className="max-w-6xl mx-auto mt-20 flex flex-col lg:flex-row space-y-8 lg:space-y-0 lg:space-x-8 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-6xl mx-auto mt-20 flex space-x-8">
         {/* Left Section: Tour Plan */}
-        <div className="w-full lg:w-2/3 bg-white dark:bg-gray-800 p-8 shadow-lg rounded-lg">
-          <h2 className="text-2xl font-semibold mb-6 text-gray-800 dark:text-gray-100">Tour Plan</h2>
-          {/* Render API response */}
+        <div className="w-2/3 bg-white p-8 shadow-lg rounded-lg">
+          <h2 className="text-2xl font-semibold mb-6">Tour Plan</h2>
+
           {/* Render Markdown data */}
-          <ReactMarkdown className="prose prose-pink">
+          <ReactMarkdown className="prose prose-pink text-black">
             {itineraryResponse}
           </ReactMarkdown>
         </div>
 
         {/* Right Section: Book This Tour */}
-        <div className="w-full lg:w-1/3 bg-white dark:bg-gray-800 p-8 shadow-lg rounded-lg">
-          <h3 className="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-100">Book This Tour</h3>
+        <div className="w-1/3 bg-white p-8 shadow-lg rounded-lg">
+          <h3 className="text-xl font-semibold mb-4">Book This Tour</h3>
+          <p className="text-sm text-gray-500 mb-6">
+            Choose the tour package that best suits your needs. Let us make your travel arrangements seamless.
+          </p>
+
           <form className="space-y-4">
-            {/* Form fields here */}
-            <button type="submit" className="w-full bg-pink-500 text-white py-3 rounded-md hover:bg-pink-600">Book Now</button>
+            <input
+              type="text"
+              placeholder="Name"
+              className="w-full border border-gray-300 rounded-md p-3 focus:ring-2 focus:ring-pink-500"
+            />
+            <input
+              type="email"
+              placeholder="Email"
+              className="w-full border border-gray-300 rounded-md p-3 focus:ring-2 focus:ring-pink-500"
+            />
+            <input
+              type="email"
+              placeholder="Confirm Email"
+              className="w-full border border-gray-300 rounded-md p-3 focus:ring-2 focus:ring-pink-500"
+            />
+            <input
+              type="tel"
+              placeholder="Phone"
+              className="w-full border border-gray-300 rounded-md p-3 focus:ring-2 focus:ring-pink-500"
+            />
+            <input
+              type="number"
+              placeholder="Number of Tickets"
+              className="w-full border border-gray-300 rounded-md p-3 focus:ring-2 focus:ring-pink-500"
+            />
+            <textarea
+              placeholder="Message"
+              rows={4}
+              className="w-full border border-gray-300 rounded-md p-3 focus:ring-2 focus:ring-pink-500"
+            ></textarea>
+            <button
+              type="submit"
+              className="w-full bg-pink-500 text-white py-3 rounded-md hover:bg-pink-600"
+            >
+              Check Availability
+            </button>
+            <button
+              type="button"
+              className="w-full bg-gray-100 text-pink-600 py-3 rounded-md mt-2 hover:bg-gray-200"
+            >
+              Book Now
+            </button>
           </form>
         </div>
       </div>
