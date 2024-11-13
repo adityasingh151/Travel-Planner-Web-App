@@ -4,7 +4,6 @@ import React, { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import dayjs from "dayjs";
 import debounce from "lodash/debounce";
-import { useAuth } from "../AuthContext";
 
 interface Prediction {
   description: string;
@@ -16,7 +15,7 @@ interface Prediction {
 const BuildYourOwnPackage: React.FC = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { setQueryParams } = useAuth();
+
   const [originRegion, setOriginRegion] = useState("");
   const [destinationCity, setDestinationCity] = useState("");
   const [startDate, setStartDate] = useState<string | null>(null);
@@ -121,9 +120,7 @@ const BuildYourOwnPackage: React.FC = () => {
       activities: JSON.stringify(activities), // Stringify activities if needed
     }).toString();
     
-    // console.log(queryParams)
-    
-  setQueryParams(queryParams);
+    console.log(queryParams)
     // Navigate to the new page with query parameters
     router.push(`/package-details?${queryParams}`);
   };

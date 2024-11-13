@@ -6,10 +6,10 @@ import Trains from "./Trains";
 import Flights from "./Flights";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/app/AuthContext";
 import PremiumLoading from "../PremiulLoading";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { useAuth } from "@/app/AuthContext";
 
 interface Stop {
   name: string;
