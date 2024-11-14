@@ -1,13 +1,23 @@
-'use client'
+"use client"; 
 import { createContext, useContext, useState, useEffect } from "react";
 import { useSession, signIn, signOut, getSession } from "next-auth/react";
+import { useSearchParams } from "next/navigation"; // To access the URL query parameters
 
 interface ChosenItem {
   title: string;
   type: string;
   details: any;
 }
-// Define a type for your Auth context
+
+interface QueryParams {
+  originRegion: string;
+  destinationCity: string;
+  startDate: string;
+  endDate: string;
+  guests: string;
+  activities: string;
+}
+
 interface AuthContextType {
   username: string;
   email: string;
@@ -15,20 +25,24 @@ interface AuthContextType {
   isLoggedIn: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
-  chosenItems: ChosenItem[];  // Add chosenItems to context
-  setChosenItems: React.Dispatch<React.SetStateAction<ChosenItem[]>>;  // Provide method to update chosenItems
+  chosenItems: ChosenItem[]; 
+  setChosenItems: React.Dispatch<React.SetStateAction<ChosenItem[]>>; 
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Create a provider component
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [username, setUsername] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [profilePicture, setProfilePicture] = useState<string>("");
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
-  const [chosenItems, setChosenItems] = useState<ChosenItem[]>([]);  // Local state for chosenItems
+  const [chosenItems, setChosenItems] = useState<ChosenItem[]>([]); 
   const { data: session, status } = useSession();
+  
+
+  const searchParams = useSearchParams(); // Get URL search params
+
+
 
   useEffect(() => {
     const checkSession = async () => {
@@ -38,7 +52,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setEmail(session.user.email || "");
         setProfilePicture(session.user.image || "");
         setIsLoggedIn(true);
-        // Load the chosen items for the logged-in user from local storage (or API)
+
         const savedItems = localStorage.getItem(session.user.email ?? "");
         if (savedItems) {
           setChosenItems(JSON.parse(savedItems)); // Load items from local storage if available
@@ -71,21 +85,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       await signOut({ redirect: false });
       setUsername("");
       setIsLoggedIn(false);
-      setChosenItems([]);  // Clear chosen items on logout
+      setChosenItems([]); 
     } catch (error) {
       console.error("Logout Failed:", error);
     }
   };
 
   useEffect(() => {
-    // Save chosenItems in localStorage for the logged-in user
     if (isLoggedIn && email) {
       localStorage.setItem(email, JSON.stringify(chosenItems));
     }
   }, [chosenItems, isLoggedIn, email]);
 
   return (
-    <AuthContext.Provider value={{ username, email, profilePicture, isLoggedIn, login, logout, chosenItems, setChosenItems }}>
+    <AuthContext.Provider value={{ username, email, profilePicture, isLoggedIn, login, logout, chosenItems, setChosenItems, }}>
       {children}
     </AuthContext.Provider>
   );

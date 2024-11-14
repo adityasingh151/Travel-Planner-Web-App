@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import dayjs from "dayjs";
 import debounce from "lodash/debounce";
+import { useAuth } from "../AuthContext";
 
 interface Prediction {
   description: string;
@@ -110,20 +111,22 @@ const BuildYourOwnPackage: React.FC = () => {
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    // Construct the query parameters
-    const queryParams = new URLSearchParams({
+  
+    // Construct queryParams as an object
+    const queryParams = {
       originRegion,
       destinationCity,
       startDate: startDate || '',
       endDate: endDate || '',
       guests: guests.toString(),
       activities: JSON.stringify(activities), // Stringify activities if needed
-    }).toString();
-    
-    console.log(queryParams)
-    // Navigate to the new page with query parameters
-    router.push(`/package-details?${queryParams}`);
+    };
+  
+  
+    // Navigate to the new page with query parameters (optional, based on your app structure)
+    router.push(`/package-details?${new URLSearchParams(queryParams).toString()}`);
   };
+  
 
   return (
     <section
