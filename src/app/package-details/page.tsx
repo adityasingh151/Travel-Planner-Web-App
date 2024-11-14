@@ -26,7 +26,7 @@ interface Train {
 type ChosenItem = {
   title: string;
   type: string;
-  details: Train;
+  details: any;
 };
 
 const PackageDetails: React.FC = () => {
@@ -40,9 +40,29 @@ const PackageDetails: React.FC = () => {
   const origin = originRegion ?? "";
   const destination = destinationCity ?? "";
 
-  const [chosenItems, setChosenItems] = useState<ChosenItem[]>([]);
+   // Initial travel details object
+   const travelDetails = {
+    originRegion,
+    destinationCity,
+    startDate,
+    endDate,
+    guests
+  };
+
+  const [chosenItems, setChosenItems] = useState<ChosenItem[]>([
+    {
+      title: "Travel Details",
+      type: "travelInfo",
+      details: travelDetails,
+    },
+  ]);
+ 
+
+
+  // const [chosenItems, setChosenItems] = useState<ChosenItem[]>([]);
   const [isLoading, setIsLoading] = useState(true); // Loading state
   const { setChosenItems: updateContextChosenItems } = useAuth(); // Import from context
+
 
   useEffect(() => {
     // Simulate loading data (e.g., API call or initial setup)

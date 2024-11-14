@@ -1,12 +1,73 @@
-"use client"; // Marking this as a client component
+"use client"; // Ensure it's a client-side component
 
-import React from 'react';
-import Image from 'next/image';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation'; // Correct import
+import React, { useState, useEffect } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { usePathname } from "next/navigation"; // Correct import
+import { useAuth } from "@/app/AuthContext"; // Access context for chosen items
+import { GoogleGenerativeAI, GenerativeModel } from "@google/generative-ai"; 
+import ReactMarkdown from "react-markdown";
+
+// Initialize the Generative AI client and model
+const genAI = new GoogleGenerativeAI(process.env.NEXT_PUBLIC_GEMINI_API_KEY as string);
+const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
 const TourInfoPage = () => {
   const pathname = usePathname(); // Using usePathname() to get the current path
+  const { chosenItems } = useAuth(); // Access queryParams from context
+  const [destinationInfo, setDestinationInfo] = useState<string>(""); // State to store Gemini API response
+  const [isLoading, setIsLoading] = useState<boolean>(false); // Loading state
+
+  // Debugging log to check queryParams
+  // console.log("QueryParams in info: ", queryParams);
+
+  // Extract destination city from queryParams
+  const destinationCity = chosenItems[0]?.details.destinationCity || "";
+
+  // Function to fetch tourist details for the city using Gemini API
+  const fetchDestinationDetails = async () => {
+    if (!destinationCity) {
+      console.log("No destination city found.");
+      return;
+    }
+
+    setIsLoading(true);
+
+    // Create a refined request payload asking for tourist-related information
+    const payload = `Provide key information about the city: ${destinationCity}. Include a description of the city, popular attractions, best time to visit, and any unique cultural aspects. Keep it concise but informative.`;
+    
+    // Debugging log to check the payload being sent
+    console.log("Sending payload to Gemini API:", payload);
+
+    try {
+      // Generate content using Gemini API
+      const result = await model.generateContent(payload);
+      
+      // Debugging log to check the result received
+      console.log("Gemini API response:", result);
+
+      if (result.response?.text) {
+        const info = result.response.text;
+        setDestinationInfo(info);
+      } else {
+        console.log("No response text returned from Gemini.");
+        setDestinationInfo("No detailed information available.");
+      }
+    } catch (error) {
+      console.error("Error fetching destination details:", error);
+      setDestinationInfo("Failed to load destination details.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (destinationCity) {
+      fetchDestinationDetails(); // Fetch destination details when destinationCity changes
+    } else {
+      console.log("No destination city specified in queryParams.");
+    }
+  }, [destinationCity]);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -24,14 +85,14 @@ const TourInfoPage = () => {
           <h1 className="text-6xl font-extrabold">Landscapes</h1>
         </div>
 
-        {/* Transparent Navigation Tabs Overlapping Hero */}
+        {/* Transparent Navigation Tabs */}
         <div className="absolute inset-x-0 bottom-0 mx-auto flex items-center justify-center bg-white bg-opacity-80 backdrop-filter backdrop-blur-lg rounded-lg shadow-lg max-w-4xl p-4">
           <Link
             href="/tourinfo"
             className={`px-4 py-2 mx-2 font-semibold rounded-md ${
-              pathname === '/tourinfo/information'
-                ? 'bg-pink-500 text-white'
-                : 'text-gray-600 hover:text-pink-600'
+              pathname === "/tourinfo/information"
+                ? "bg-pink-500 text-white"
+                : "text-gray-600 hover:text-pink-600"
             }`}
           >
             Information
@@ -40,9 +101,9 @@ const TourInfoPage = () => {
           <Link
             href="/tourinfo/tourplan"
             className={`px-4 py-2 mx-2 font-semibold rounded-md ${
-              pathname === '/tourinfo/tour-plan'
-                ? 'bg-pink-500 text-white'
-                : 'text-gray-600 hover:text-pink-600'
+              pathname === "/tourinfo/tour-plan"
+                ? "bg-pink-500 text-white"
+                : "text-gray-600 hover:text-pink-600"
             }`}
           >
             Tour Plan
@@ -51,9 +112,9 @@ const TourInfoPage = () => {
           <Link
             href="/tourinfo/tourlocation"
             className={`px-4 py-2 mx-2 font-semibold rounded-md ${
-              pathname === '/tourinfo/location'
-                ? 'bg-pink-500 text-white'
-                : 'text-gray-600 hover:text-pink-600'
+              pathname === "/tourinfo/location"
+                ? "bg-pink-500 text-white"
+                : "text-gray-600 hover:text-pink-600"
             }`}
           >
             Location
@@ -63,13 +124,18 @@ const TourInfoPage = () => {
 
       {/* Main Content Area */}
       <div className="max-w-6xl mx-auto mt-20 flex space-x-8">
-        {/* Left Section */}
+        {/* Left Section: Destination Information */}
         <div className="w-2/3 bg-white p-8 shadow-lg rounded-lg">
-          <h2 className="text-3xl font-semibold mb-4">Information</h2>
-          <p className="text-gray-600">
-            Welcome to Kashmir, a land where breathtaking beauty meets majestic mountains. Known for its 
-            snow-capped peaks and beautiful valleys, it offers a truly immersive experience for travelers.
-          </p>
+          <h2 className="text-3xl font-semibold mb-4">Destination Information</h2>
+
+          {/* Show Loading or Destination Info */}
+          {isLoading ? (
+            <div className="text-center text-lg text-gray-500">Loading destination details...</div>
+          ) : (
+            <div className="prose prose-pink text-black">
+              <ReactMarkdown>{destinationInfo}</ReactMarkdown>
+            </div>
+          )}
         </div>
 
         {/* Right Section: Book This Tour */}
