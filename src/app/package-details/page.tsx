@@ -110,7 +110,7 @@ const PackageDetails: React.FC = () => {
       // Update context and navigate to itinerary page
       console.log(chosenItems)
       updateContextChosenItems(chosenItems); // Save to context
-      // router.push("/tourinfo/tourplan");
+      router.push("/tourinfo/tourplan");
     }
   };
 
