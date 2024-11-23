@@ -1,6 +1,6 @@
-"use client"; // Ensure it's a client-side component
+"use client"; // Ensuring this is a client-side component
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -8,6 +8,7 @@ import dynamic from "next/dynamic"; // Dynamically import the map components
 import L from "leaflet"; // Import Leaflet to manually configure icons
 import "leaflet/dist/leaflet.css"; // Import Leaflet CSS
 import { useAuth } from "@/app/AuthContext";
+import BookThisTour from "../BookThisTour";
 
 // Dynamically import Leaflet components
 const MapContainer = dynamic(() => import("react-leaflet").then((mod) => mod.MapContainer), { ssr: false });
@@ -35,8 +36,10 @@ const TourLocationPage: React.FC = () => {
   const [locationCoords, setLocationCoords] = useState<[number, number] | null>(null); // Store latitude and longitude
   const [isLoading, setIsLoading] = useState(false);
 
+  const mapRef = useRef<L.Map | null>(null); // Reference to the map container
+
   const destinationCity = chosenItems[0]?.details.destinationCity || ""; // Extract destination city from queryParams
-console.log("destinationCity: ", destinationCity)
+
   useEffect(() => {
     setIsMounted(true);
   }, []);
@@ -57,7 +60,6 @@ console.log("destinationCity: ", destinationCity)
       if (data && data.length > 0) {
         const lat = parseFloat(data[0].lat);
         const lon = parseFloat(data[0].lon);
-        console.log("lat & long: ", lat, lon)
         setLocationCoords([lat, lon]); // Update state with the coordinates
       } else {
         console.log("City not found or no coordinates available.");
@@ -91,33 +93,21 @@ console.log("destinationCity: ", destinationCity)
         <div className="absolute inset-x-0 bottom-0 mx-auto flex items-center justify-center bg-white bg-opacity-80 backdrop-filter backdrop-blur-lg rounded-lg shadow-lg max-w-4xl p-4">
           <Link
             href="/tourinfo"
-            className={`px-4 py-2 mx-2 font-semibold rounded-md ${
-              pathname === "/tourinfo/information"
-                ? "bg-pink-500 text-white"
-                : "text-gray-600 hover:text-pink-600"
-            }`}
+            className={`px-4 py-2 mx-2 font-semibold rounded-md ${pathname === '/tourinfo/information' ? 'bg-pink-500 text-white' : 'text-gray-600 hover:text-pink-600'}`}
           >
             Information
           </Link>
 
           <Link
             href="/tourinfo/tourplan"
-            className={`px-4 py-2 mx-2 font-semibold rounded-md ${
-              pathname === "/tourinfo/tour-plan"
-                ? "bg-pink-500 text-white"
-                : "text-gray-600 hover:text-pink-600"
-            }`}
+            className={`px-4 py-2 mx-2 font-semibold rounded-md ${pathname === '/tourinfo/tour-plan' ? 'bg-pink-500 text-white' : 'text-gray-600 hover:text-pink-600'}`}
           >
             Tour Plan
           </Link>
 
           <Link
             href="/tourinfo/tourlocation"
-            className={`px-4 py-2 mx-2 font-semibold rounded-md ${
-              pathname === "/tourinfo/location"
-                ? "bg-pink-500 text-white"
-                : "text-gray-600 hover:text-pink-600"
-            }`}
+            className={`px-4 py-2 mx-2 font-semibold rounded-md ${pathname === '/tourinfo/location' ? 'bg-pink-500 text-white' : 'text-gray-600 hover:text-pink-600'}`}
           >
             Location
           </Link>
@@ -128,7 +118,7 @@ console.log("destinationCity: ", destinationCity)
       <div className="max-w-6xl mx-auto mt-20 flex space-x-8">
         {/* Left Section: Location Information */}
         <div className="w-2/3 bg-white p-8 shadow-lg rounded-lg">
-          <h2 className="text-2xl font-semibold mb-6">Tour Location</h2>
+          <h2 className="text-2xl font-semibold mb-6 text-darkBlue">Tour Location</h2>
 
           <ul className="list-disc list-inside text-sm text-gray-700 mb-6">
             <li>{destinationCity}</li>
@@ -149,6 +139,10 @@ console.log("destinationCity: ", destinationCity)
                 zoom={13}
                 scrollWheelZoom={false}
                 className="h-full w-full"
+                whenReady={() => {
+                  if (mapRef.current) return; // Prevent re-initialization
+                  mapRef.current = mapRef.current; // Store the map instance
+                }}
               >
                 <TileLayer
                   url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -169,15 +163,7 @@ console.log("destinationCity: ", destinationCity)
         </div>
 
         {/* Right Section: Book This Tour */}
-        <div className="w-1/3 bg-white p-8 shadow-lg rounded-lg">
-          <h3 className="text-xl font-semibold mb-4">Book This Tour</h3>
-          <form className="space-y-4">
-            <input type="text" placeholder="Full Name" className="w-full border border-gray-300 rounded-md p-3" />
-            <input type="email" placeholder="Email" className="w-full border border-gray-300 rounded-md p-3" />
-            <textarea placeholder="Message" rows={4} className="w-full border border-gray-300 rounded-md p-3"></textarea>
-            <button type="submit" className="w-full bg-pink-500 text-white py-3 rounded-md hover:bg-pink-600">Check Availability</button>
-          </form>
-        </div>
+        <BookThisTour/>
       </div>
     </div>
   );

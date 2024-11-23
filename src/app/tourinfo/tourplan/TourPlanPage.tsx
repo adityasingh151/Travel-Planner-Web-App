@@ -7,6 +7,7 @@ import { usePathname } from 'next/navigation';
 import { useAuth } from '@/app/AuthContext';
 import { GoogleGenerativeAI, GenerativeModel } from "@google/generative-ai"; 
 import ReactMarkdown, { Components } from 'react-markdown';
+import BookThisTour from '../BookThisTour';
 
 const genAI = new GoogleGenerativeAI(process.env.NEXT_PUBLIC_GEMINI_API_KEY as string);
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
@@ -56,6 +57,7 @@ const TourPlanPage = () => {
   const pathname = usePathname();
   const [itineraryResponse, setItineraryResponse] = useState("nothing is present.");
   const { chosenItems } = useAuth();
+  console.log("chosenItems: ", chosenItems)
 
   // Adjusting type of chosenItemsObject to avoid implicit 'any' error
   const chosenItemsObject = chosenItems.reduce<Record<number, ChosenItem>>((acc, curr, index) => {
@@ -122,21 +124,7 @@ const TourPlanPage = () => {
         </div>
 
         {/* Right Section: Book This Tour */}
-        <div className="w-1/3 bg-white p-8 shadow-lg rounded-lg">
-          <h3 className="text-xl font-semibold mb-4">Book This Tour</h3>
-          <p className="text-sm text-gray-500 mb-6">
-            Choose the tour package that best suits your needs. Let us make your travel arrangements seamless.
-          </p>
-          <form className="space-y-4">
-            <input type="text" placeholder="Name" className="w-full border border-gray-300 rounded-md p-3 focus:ring-2 bg-white focus:ring-pink-500" />
-            <input type="email" placeholder="Email" className="w-full border border-gray-300 rounded-md p-3 focus:ring-2 bg-white focus:ring-pink-500" />
-            <input type="email" placeholder="Confirm Email" className="w-full border border-gray-300 rounded-md p-3 focus:ring-2 bg-white focus:ring-pink-500" />
-            <input type="tel" placeholder="Phone" className="w-full border border-gray-300 rounded-md p-3 focus:ring-2 bg-white focus:ring-pink-500" />
-            <input type="number" placeholder="Number of Tickets" className="w-full border border-gray-300 rounded-md p-3 focus:ring-2 bg-white focus:ring-pink-500" />
-            <textarea placeholder="Message" rows={4} className="w-full border border-gray-300 rounded-md p-3 focus:ring-2 bg-white focus:ring-pink-500"></textarea>
-            <button type="submit" className="w-full bg-pink-600 text-white font-bold py-3 rounded-lg hover:bg-pink-500">Submit</button>
-          </form>
-        </div>
+        <BookThisTour/>
       </div>
     </div>
   );

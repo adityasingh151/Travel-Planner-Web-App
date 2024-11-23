@@ -39,9 +39,9 @@ interface IUser extends Document {
         rating?: number;
         review?: string;
     }[];
-    wishlist?: string[];
-    createdAt: Date;
-    updatedAt: Date;
+    // wishlist?: string[];
+    // createdAt: Date;
+    // updatedAt: Date;
 }
 
 // Define the User schema
@@ -116,11 +116,11 @@ const userSchema: Schema<IUser> = new Schema({
             review: { type: String, default: "" },
         },
     ],
-    wishlist: { type: [String], default: [] },
-    createdAt: {
-        type: Date,
-        default: Date.now,
-    },
+    // wishlist: { type: [String], default: [] },
+    // createdAt: {
+    //     type: Date,
+    //     default: Date.now,
+    // },
     updatedAt: {
         type: Date,
         default: Date.now,

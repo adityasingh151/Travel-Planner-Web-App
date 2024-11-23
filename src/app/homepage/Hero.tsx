@@ -65,7 +65,7 @@ export default function Hero() {
   };
 
   return (
-    <section className="relative h-screen bg-cover bg-center transition-all duration-500" style={{ backgroundImage: 'url("./Front picture.jpg")' }}>
+    <section className="relative h-screen bg-cover bg-center transition-all duration-500" style={{ backgroundImage: 'url("./Front_picture.jpg")' }}>
       <ToastContainer position="top-center" autoClose={3000} />
       <div className="absolute inset-0 bg-black bg-opacity-50"></div>
       <div className="relative z-10 flex flex-col items-center md:items-start w-full md:w-1/2 justify-center h-full text-center text-white">

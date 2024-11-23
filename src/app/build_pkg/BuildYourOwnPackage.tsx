@@ -8,9 +8,6 @@ import { useAuth } from "../AuthContext";
 
 interface Prediction {
   description: string;
-  // destinationCity:string;
-  // origin:string;
-  // startDate:string
 }
 
 const BuildYourOwnPackage: React.FC = () => {
@@ -41,7 +38,7 @@ const BuildYourOwnPackage: React.FC = () => {
     healthcare: false,
     accommodation: false,
   });
-  
+
   const [autocompleteResults, setAutocompleteResults] = useState<Prediction[]>([]);
   const apiKey = process.env.NEXT_PUBLIC_GOMAPS_API_KEY as string;
 
@@ -60,7 +57,6 @@ const BuildYourOwnPackage: React.FC = () => {
   }, 300);
 
   useEffect(() => {
-    console.log("search params: ", searchParams.get("whereTo"), searchParams.get("travelType"), searchParams.get("duration"), searchParams.get("activity"));
     const whereTo = searchParams.get("whereTo");
     const activity = searchParams.get("activity");
     const duration = searchParams.get("duration");
@@ -93,12 +89,12 @@ const BuildYourOwnPackage: React.FC = () => {
   const handleOriginChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setOriginRegion(value);
-    fetchSuggestions(value); // Fetch suggestions as user types
+    fetchSuggestions(value);
   };
 
   const handleSuggestionClick = (suggestion: string) => {
     setOriginRegion(suggestion);
-    setAutocompleteResults([]); // Clear suggestions after selection
+    setAutocompleteResults([]);
   };
 
   const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -111,28 +107,21 @@ const BuildYourOwnPackage: React.FC = () => {
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-  
-    // Construct queryParams as an object
+
     const queryParams = {
       originRegion,
       destinationCity,
       startDate: startDate || '',
       endDate: endDate || '',
       guests: guests.toString(),
-      activities: JSON.stringify(activities), // Stringify activities if needed
+      activities: JSON.stringify(activities),
     };
-  
-  
-    // Navigate to the new page with query parameters (optional, based on your app structure)
+
     router.push(`/package-details?${new URLSearchParams(queryParams).toString()}`);
   };
-  
 
   return (
-    <section
-      className="relative h-screen bg-cover bg-center flex items-center justify-center transition-all duration-500"
-      style={{ backgroundImage: 'url("/Front picture.jpg")' }}
-    >
+    <section className="relative h-screen bg-[url('/Front_picture.jpg')] bg-cover bg-center flex items-center justify-center transition-all duration-500">
       <div className="absolute inset-0 bg-black bg-opacity-50"></div>
       <div className="absolute inset-0 backdrop-blur-md bg-opacity-10 w-full justify-items-center mt-20">
         <div className="relative z-10 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 max-w-lg w-full text-center">
@@ -147,7 +136,7 @@ const BuildYourOwnPackage: React.FC = () => {
               </label>
               <input
                 type="text"
-                placeholder="Giridih"
+                placeholder="Delhi"
                 value={originRegion}
                 onChange={handleOriginChange}
                 className="w-full px-3 py-2 border dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
