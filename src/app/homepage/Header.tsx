@@ -8,9 +8,9 @@ import { useRouter } from "next/navigation";
 import { CiUser } from "react-icons/ci";
 
 export default function Header() {
-  const { username, isLoggedIn, logout, profilePicture } = useAuth(); // Use the Auth context
+  const { username, isLoggedIn, logout } = useAuth(); // Removed profilePicture since it's unused
   const [dropdownVisible, setDropdownVisible] = useState(false);
-  const dropdownRef = useRef(null); // Ref to track the dropdown
+  const dropdownRef = useRef<HTMLDivElement | null>(null); // Explicitly type the ref
   const router = useRouter();
 
   const toggleDropdown = () => {
@@ -29,7 +29,10 @@ export default function Header() {
 
   // Attach and clean up event listener
   useEffect(() => {
+<<<<<<< Updated upstream
     // console.log("profilepicture:",profilePicture)
+=======
+>>>>>>> Stashed changes
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
@@ -79,9 +82,13 @@ export default function Header() {
               onClick={toggleDropdown}
             >
               <div className="w-10 h-10 bg-pink-500 rounded-full flex items-center justify-center shadow-lg">
+<<<<<<< Updated upstream
                 
                   <CiUser className="text-white text-2xl" />
               
+=======
+                <CiUser className="text-white text-2xl" />
+>>>>>>> Stashed changes
               </div>
               <p className="text-black">{username}</p>
             </div>

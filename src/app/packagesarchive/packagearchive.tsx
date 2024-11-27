@@ -1,8 +1,6 @@
-// components/PackageArchive.tsx
-
 import React from 'react';
-import Image from 'next/image';
-import Link from 'next/link'; // Import the Link component
+import Image from 'next/image'; // Importing Image from next/image
+import Link from 'next/link';
 
 const PackageArchive = () => {
   return (
@@ -115,7 +113,12 @@ const PackageArchive = () => {
           </button>
 
           <div className="absolute bottom-0 right-0 transform translate-x-10 translate-y-10">
-            <img src="/bag-airplane.svg" alt="Bag and Plane" className="w-24 h-auto" />
+            <Image
+              src="/bag-airplane.svg"
+              alt="Bag and Plane"
+              width={96} // You can adjust the width/height to your preference
+              height={96}
+            />
           </div>
         </div>
       </div>
@@ -129,7 +132,12 @@ const PackageArchive = () => {
       </footer>
 
       <div className="absolute top-0 right-0 transform translate-x-20 -translate-y-10">
-        <img src="/seashell.svg" alt="Seashell" className="w-12 h-auto" />
+        <Image
+          src="/seashell.svg"
+          alt="Seashell"
+          width={48} // Adjust width/height to your preference
+          height={48}
+        />
       </div>
     </div>
   );

@@ -1,25 +1,29 @@
 import nodemailer from "nodemailer";
 import bcryptjs from "bcryptjs";
 import User from "@/models/userModel";
-import { MailtrapTransport } from "mailtrap";
 
-const TOKEN = "aed21bab1a74e5e0d93d60355bc52a54";
-const MAILTRAP_TEST_INBOX_ID = 3202472;
+// Define the interface for the email object
+interface SendEmailParams {
+  email: string;
+  emailType: "VERIFY" | "RESET";
+  userId: string;  // userId is of type string, so it should be used as _id in the query
+}
 
-export const sendEmail = async ({ email, emailType, userId }: any) => {
+export const sendEmail = async ({ email, emailType, userId }: SendEmailParams) => {
   try {
     // Hash the userId to create the token
     const hashedToken = await bcryptjs.hash(userId.toString(), 10);
 
+    // Update the user document based on the emailType
     if (emailType === "VERIFY") {
-      await User.findOneAndUpdate(userId, {
+      await User.findOneAndUpdate({ _id: userId }, {
         $set: {
           verifyToken: hashedToken,
           verifyTokenExpiry: new Date().getTime() + 3600000, // 1 hour expiry
         },
       });
     } else if (emailType === "RESET") {
-      await User.findOneAndUpdate(userId, {
+      await User.findOneAndUpdate({ _id: userId }, {
         $set: {
           forgetPasswordToken: hashedToken,
           forgetPasswordTokenExpiry: new Date().getTime() + 3600000, // 1 hour expiry
@@ -27,7 +31,7 @@ export const sendEmail = async ({ email, emailType, userId }: any) => {
       });
     }
 
-    // Create the transporter using MailtrapTransport
+    // Create the transporter using Gmail service
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
@@ -35,7 +39,10 @@ export const sendEmail = async ({ email, emailType, userId }: any) => {
         pass: process.env.GOOGLE_APP_PASSWORD, // Use an App Password if 2FA is enabled
       },
     });
+<<<<<<< Updated upstream
     
+=======
+>>>>>>> Stashed changes
 
     // Define email subject and message based on email type
     const subject =
@@ -60,14 +67,15 @@ export const sendEmail = async ({ email, emailType, userId }: any) => {
       subject: subject,
       html: htmlMessage,
       category: emailType === "VERIFY" ? "Verify Email" : "Reset Password",
-      sandbox: true,
+      sandbox: true, // If you use Mailtrap in sandbox mode, keep this. Otherwise, remove it.
     };
 
     // Send the email
     const mailResponse = await transporter.sendMail(mailOptions);
 
     return mailResponse;
-  } catch (error: any) {
-    throw new Error(error.message);
+  } catch (error) {
+    // Provide more specific error handling
+    throw new Error(`Error sending email: ${error instanceof Error ? error.message : String(error)}`);
   }
 };

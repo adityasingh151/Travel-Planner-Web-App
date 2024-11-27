@@ -1,8 +1,9 @@
 // next-auth.d.ts
-import NextAuth from "next-auth";
+import { Session as NextAuthSession } from "next-auth";
+import { JWT as NextAuthJWT } from "next-auth/jwt";
 
 declare module "next-auth" {
-  interface Session {
+  interface Session extends NextAuthSession {
     user: {
       id?: string;
       name?: string | null;
@@ -18,7 +19,7 @@ declare module "next-auth" {
 }
 
 declare module "next-auth/jwt" {
-  interface JWT {
+  interface JWT extends NextAuthJWT {
     id?: string;
     name?: string | null;
     email?: string | null;

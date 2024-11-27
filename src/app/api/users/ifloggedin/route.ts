@@ -17,12 +17,12 @@ export async function POST(request: NextRequest) {
     // Verify the token
     const decoded = jwt.verify(token, process.env.TOKEN_SECRET!);
 
-    if (!decoded || typeof decoded !== 'object' || !decoded.email) {
+    if (!decoded || typeof decoded !== "object" || !("email" in decoded)) {
       return NextResponse.json({ message: "Invalid token", success: false }, { status: 401 });
     }
 
     // Find the user in the database using the email from the token
-    const user = await User.findOne({ email: decoded.email });
+    const user = await User.findOne({ email: (decoded as jwt.JwtPayload).email });
 
     if (!user) {
       return NextResponse.json({ message: "User not found", success: false }, { status: 404 });
@@ -34,7 +34,11 @@ export async function POST(request: NextRequest) {
       firstName: user.firstName, // Send only the firstName to the client
     });
 
-  } catch (error: any) {
-    return NextResponse.json({ message: error.message, success: false }, { status: 500 });
+  } catch (error: unknown) {
+    // Narrow down the error type
+    if (error instanceof Error) {
+      return NextResponse.json({ message: error.message, success: false }, { status: 500 });
+    }
+    return NextResponse.json({ message: "An unexpected error occurred", success: false }, { status: 500 });
   }
 }

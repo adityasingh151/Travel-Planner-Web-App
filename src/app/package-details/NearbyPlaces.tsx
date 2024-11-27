@@ -6,24 +6,36 @@ import {
   faStar as emptyStar,
   faArrowLeft,
   faArrowRight,
-  faPlus,
-  faMinus,
 } from "@fortawesome/free-solid-svg-icons";
 import useWindowDimensions from "@/helpers/useWindowDimensions";
+import Image from "next/image";  // Importing Image from Next.js
+
+type PlaceDetails = {
+  name: string;
+  photoUrl: string;
+  vicinity: string;
+  rating: number;
+  user_ratings_total: number;
+};
 
 type ChosenItem = {
   title: string;
   type: string;
-  details: any;
+  details: PlaceDetails;
 };
 
-const NearbyPlaces: React.FC<{
+interface NearbyPlacesProps {
   destinationCity: string;
-  onChooseItem: (item: { title: string; type: string; details: any }) => void;
+  onChooseItem: (item: ChosenItem) => void;
   chosenItems: ChosenItem[];
-}> = ({ destinationCity, onChooseItem, chosenItems }) => {
-  const [places, setPlaces] = useState<any[]>([]);
-  const [selectedPlaces, setSelectedPlaces] = useState<any[]>([]); // Selected places for itinerary
+}
+
+const NearbyPlaces: React.FC<NearbyPlacesProps> = ({
+  destinationCity,
+  onChooseItem,
+  chosenItems,
+}) => {
+  const [places, setPlaces] = useState<PlaceDetails[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const apiKey = process.env.NEXT_PUBLIC_GOMAPS_API_KEY as string;
   const { width } = useWindowDimensions();
@@ -68,23 +80,24 @@ const NearbyPlaces: React.FC<{
           `${process.env.NEXT_PUBLIC_GOMAPS_DOMAIN}/textsearch/json?query=${destinationCity}&key=${apiKey}`
         );
         const textSearchData = await textSearchResponse.json();
-        console.log("destination: ", destinationCity,"apikey: ",apiKey, "textSearchData: ", textSearchData)
 
-        if (textSearchData.results && textSearchData.results.length > 0) {
+        if (textSearchData.results?.length > 0) {
           const { lat, lng } = textSearchData.results[0].geometry.location;
 
           const nearbySearchResponse = await fetch(
-            `${process.env.NEXT_PUBLIC_GOMAPS_DOMAIN}/nearbysearch/json?location=${lat},${lng}&radius=500000&type=tourist_attraction&keyword=monument&key=${apiKey}`
+            `${process.env.NEXT_PUBLIC_GOMAPS_DOMAIN}/nearbysearch/json?location=${lat},${lng}&radius=50000&type=tourist_attraction&keyword=monument&key=${apiKey}`
           );
           const nearbySearchData = await nearbySearchResponse.json();
-          console.log("nearbysearchData: ", nearbySearchData);
 
           const placesWithPhotos = nearbySearchData.results.map(
-            (place: any) => ({
-              ...place,
+            (place: { name: string; photos?: { photo_reference: string }[]; vicinity?: string; rating?: number; user_ratings_total?: number }) => ({
+              name: place.name,
               photoUrl: place.photos?.[0]?.photo_reference
                 ? `${process.env.NEXT_PUBLIC_GOMAPS_DOMAIN}/photo?maxwidth=400&photoreference=${place.photos[0].photo_reference}&key=${apiKey}`
                 : "/placeholder-image.png",
+              vicinity: place.vicinity || "No address available",
+              rating: place.rating || 0,
+              user_ratings_total: place.user_ratings_total || 0,
             })
           );
 
@@ -112,20 +125,6 @@ const NearbyPlaces: React.FC<{
     }
   };
 
-  const handleAddToItinerary = (place: any) => {
-    setSelectedPlaces((prevSelected) => [...prevSelected, place]);
-  };
-
-  const handleRemoveFromItinerary = (placeId: string) => {
-    setSelectedPlaces((prevSelected) =>
-      prevSelected.filter((place) => place.place_id !== placeId)
-    );
-  };
-
-  const isPlaceInItinerary = (placeId: string) => {
-    return selectedPlaces.some((place) => place.place_id === placeId);
-  };
-
   const isChosen = (placeName: string) =>
     chosenItems.some(
       (item) => item.title === placeName && item.type === "place"
@@ -140,9 +139,12 @@ const NearbyPlaces: React.FC<{
       <div className="flex items-center justify-between mt-4">
         {/* Navigation buttons */}
         <button
+          type="button"
           onClick={handlePrev}
           disabled={currentIndex === 0}
           className="text-gray-500 dark:text-gray-400 disabled:opacity-50"
+          title="Previous Places"
+          aria-label="Previous Places"
         >
           <FontAwesomeIcon icon={faArrowLeft} />
         </button>
@@ -166,9 +168,11 @@ const NearbyPlaces: React.FC<{
                     : `min-w-[calc(100%/${itemsPerPage})]`
                 }`}
               >
-                <img
+                <Image
                   src={place.photoUrl}
                   alt={place.name}
+                  width={400}
+                  height={250}
                   className="w-full h-48 object-cover"
                   onError={(e) =>
                     (e.currentTarget.src = "/placeholder-image.png")
@@ -176,47 +180,22 @@ const NearbyPlaces: React.FC<{
                 />
                 <div className="p-4">
                   <h3 className="text-lg font-semibold text-gray-800 dark:text-white">
-                    {place.name.length > 30 ? `${place.name.slice(0,30)}...` : place.name }
+                    {place.name.length > 30
+                      ? `${place.name.slice(0, 30)}...`
+                      : place.name}
                   </h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-300">
-                    {place.vicinity.length > 50 ? `${place.vicinity.slice(0,50)}...` : place.vicinity}
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    {place.vicinity}
                   </p>
-                  <div className="flex items-center mt-2">
-                    {renderStars(place.rating)}
-                    <span className="ml-2 text-gray-500 dark:text-gray-400 text-sm">
-                      ({place.user_ratings_total || 0} reviews)
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <a 
-                    href={`https://www.google.com/maps/search/?api=1&query=Google&query_place_id=${place.place_id}`}
-                    className="mt-2 p-2 bg-pink-500 text-white rounded-lg hover:bg-pink-600 transition"
-                    target="_blank"
-                    >
-                      Get Direction
-                    </a>
-                    {/* Add/Remove Button */}
+
+                  <div className="mt-1">{renderStars(place.rating)}</div>
+
+                  <div className="mt-2 flex justify-between items-center">
                     <button
-                      onClick={() =>
-                        onChooseItem({
-                          title: place.name,
-                          type: "place",
-                          details: {
-                            name: place.name,
-                            url: place.photoUrl,
-                            vicinity: place.vicinity,
-                            rating: place.rating,
-                            user_ratings_total: place.user_ratings_total,
-                          },
-                        })
-                      }
-                      className={`mt-2 p-2 rounded-lg transition ${
-                        isChosen(place.name)
-                          ? "bg-red-500 hover:bg-red-600"
-                          : "bg-green-500 hover:bg-green-600"
-                      } text-white`}
+                      onClick={() => onChooseItem({ title: place.name, type: "place", details: place })}
+                      className={`text-sm text-blue-500 ${isChosen(place.name) && "font-bold"}`}
                     >
-                      {isChosen(place.name) ? "Remove" : "Add"}
+                      {isChosen(place.name) ? "Selected" : "Choose"}
                     </button>
                   </div>
                 </div>
@@ -224,10 +203,15 @@ const NearbyPlaces: React.FC<{
             ))}
           </ul>
         </div>
+
+        {/* Next button */}
         <button
+          type="button"
           onClick={handleNext}
           disabled={currentIndex + itemsPerPage >= places.length}
           className="text-gray-500 dark:text-gray-400 disabled:opacity-50"
+          title="Next Places"
+          aria-label="Next Places"
         >
           <FontAwesomeIcon icon={faArrowRight} />
         </button>

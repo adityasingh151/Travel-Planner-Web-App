@@ -7,9 +7,9 @@ connect();
 
 export async function POST(request: NextRequest) {
   try {
-      // Parse the request body to extract the email
-      const reqBody = await request.json();
-      console.log("google-signin",reqBody)
+    // Parse the request body to extract the email
+    const reqBody = await request.json();
+    console.log("google-signin", reqBody);
     const { email } = reqBody;
 
     // Check if a user with the provided email exists in the database
@@ -18,8 +18,7 @@ export async function POST(request: NextRequest) {
     // If the user does not exist, return a 404 response with an appropriate message
     if (!user) {
       return NextResponse.json(
-        { message: "User doesn't exist, please register first", status:400 },
-        // { status: 404 }
+        { message: "User doesn't exist, please register first", status: 400 },
       );
     }
 
@@ -35,8 +34,11 @@ export async function POST(request: NextRequest) {
       },
       { status: 200 }
     );
-  } catch (error: any) {
-    // Handle any errors that occur during the process
-    return NextResponse.json({ message: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    // Use the `unknown` type for `error` and narrow it down
+    if (error instanceof Error) {
+      return NextResponse.json({ message: error.message }, { status: 500 });
+    }
+    return NextResponse.json({ message: "An unexpected error occurred" }, { status: 500 });
   }
 }

@@ -2,7 +2,7 @@ import NextAuth, { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import TwitterProvider from "next-auth/providers/twitter";
 import GitHubProvider from "next-auth/providers/github";
-import CredentialsProvider from 'next-auth/providers/credentials';
+import CredentialsProvider from "next-auth/providers/credentials";
 import axios from "axios";
 
 export const authOptions: NextAuthOptions = {
@@ -20,23 +20,26 @@ export const authOptions: NextAuthOptions = {
       clientId: process.env.GITHUB_CLIENT_ID as string,
       clientSecret: process.env.GITHUB_CLIENT_SECRET as string,
     }),
-    // Credentials Provider for email/password
     CredentialsProvider({
-      name: 'Credentials',
+      name: "Credentials",
       credentials: {
-        email: { label: 'Email', type: 'text' },
-        password: { label: 'Password', type: 'password' },
+        email: { label: "Email", type: "text" },
+        password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
         if (!credentials || !credentials.email || !credentials.password) {
-          throw new Error('Please provide both email and password');
+          throw new Error("Please provide both email and password");
         }
-      
+
         const { email, password } = credentials;
-      
+
         try {
           const response = await axios.post(`${process.env.DOMAIN}/api/users/login`, { email, password });
+<<<<<<< Updated upstream
       
+=======
+
+>>>>>>> Stashed changes
           if (response.data && response.data.success) {
             console.log("response data: ", response.data);
             return {
@@ -46,8 +49,17 @@ export const authOptions: NextAuthOptions = {
               profilePicture: response.data.profilePicture,
             };
           } else {
-            throw new Error(response.data.message || 'Invalid email or password');
+            throw new Error(response.data.message || "Invalid email or password");
           }
+        } catch (error: unknown) {
+          if (axios.isAxiosError(error)) {
+            console.error("Authorization error:", error.message);
+            throw new Error(error.response?.data?.message || "Login failed");
+          } else {
+            console.error("Unexpected error:", error);
+            throw new Error("An unexpected error occurred");
+          }
+<<<<<<< Updated upstream
         } catch (error:any) {
           console.error("Authorization error:", error.message);
           throw new Error(error.response?.data?.message || 'Login failed');
@@ -57,6 +69,11 @@ export const authOptions: NextAuthOptions = {
       
     })
     
+=======
+        }
+      },
+    }),
+>>>>>>> Stashed changes
   ],
   session: {
     strategy: "jwt",
@@ -74,7 +91,6 @@ export const authOptions: NextAuthOptions = {
       return token;
     },
     async session({ session, token }) {
-      // console.log("session: ",session)
       session.user.id = token.id as string;
       session.user.name = token.name;
       session.user.email = token.email;

@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import dayjs from "dayjs";
 import debounce from "lodash/debounce";
-import { useAuth } from "../AuthContext";
+
 
 interface Prediction {
   description: string;

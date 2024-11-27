@@ -1,13 +1,12 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = {};
-// next.config.js
-// next.config.mjs
-export default {
-    images: {
-      domains: ['via.placeholder.com'], // Add allowed domains here
-    },
-  };
-  
-  
+const nextConfig = {
+  images: {
+    domains: [
+      'via.placeholder.com',  // Existing allowed domain
+      'lh4.googleusercontent.com',  // Add this domain to allow images from Google
+      'lh5.googleusercontent.com',  // If this is used too
+    ],
+  },
+};
 
-
+export default nextConfig;

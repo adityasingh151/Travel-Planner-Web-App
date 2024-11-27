@@ -1,6 +1,36 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../AuthContext'; // Adjust path as necessary
-import { useSearchParams } from 'next/navigation';
+
+type ChosenItem = {
+  title: string;
+  type: string;
+  details: {
+    destinationCity: string;
+    startDate: string;
+    endDate: string;
+    activities?: string[];
+  };
+};
+
+type DynamicTrip = {
+  destination: string;
+  startDate: string;
+  endDate: string;
+  accommodation: string;
+  activities: string[];
+  plannedTrips: Array<{
+    destination: string;
+    startDate: Date;
+    endDate: Date;
+    accommodation?: string;
+    activities?: string[];
+    status?: 'upcoming' | 'completed' | 'canceled';
+    name?: string;
+    tickets?: number;
+    phone?: string;
+    chosenItems?: ChosenItem[];
+  }>;
+};
 
 function BookThisTour() {
   const [formData, setFormData] = useState({
@@ -13,13 +43,17 @@ function BookThisTour() {
   });
 
   const { email: userEmail, chosenItems } = useAuth(); // Get user email from AuthContext
+<<<<<<< Updated upstream
   const searchParams = useSearchParams(); // Access query parameters
+=======
+>>>>>>> Stashed changes
 
-  const [dynamicTrip, setDynamicTrip] = useState({
+  const [dynamicTrip, setDynamicTrip] = useState<DynamicTrip>({
     destination: '',
     startDate: '',
     endDate: '',
     accommodation: '',
+<<<<<<< Updated upstream
     activities: '',
     plannedTrips: [] as {
       destination: string;
@@ -37,16 +71,28 @@ function BookThisTour() {
         details: Record<string, any>;
       }[];
     }[],
+=======
+    activities: [],
+    plannedTrips: [],
+>>>>>>> Stashed changes
   });
 
   useEffect(() => {
-    if (chosenItems && chosenItems.length > 0 && chosenItems[0].details) {
+    if (chosenItems && chosenItems.length > 0 && chosenItems[0]?.details) {
       const userDetails = chosenItems[0];
+<<<<<<< Updated upstream
       const destination = userDetails.details.destinationCity || 'Default Destination';
       const startDate = userDetails.details.startDate || new Date().toISOString();
       const endDate =
         userDetails.details.endDate || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
       const activities = userDetails.details.activities || JSON.stringify(['Hiking']);
+=======
+      const destination = userDetails.details?.destinationCity || 'Default Destination';
+      const startDate = userDetails.details?.startDate || new Date().toISOString();
+      const endDate =
+        userDetails.details?.endDate || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+      const activities = userDetails.details?.activities || ['Hiking'];
+>>>>>>> Stashed changes
 
       setDynamicTrip({
         destination,

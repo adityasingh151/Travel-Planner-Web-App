@@ -5,6 +5,7 @@ import Header from "./homepage/Header";
 import Footer from "./Footer";
 import { AuthProvider } from "@/app/AuthContext"; // Import AuthProvider
 import SessionWrapper from '@/app/SessionWrapper';
+import { Session } from "next-auth"; // Import Session type
 
 const geistSans = localFont({
     src: "./fonts/GeistVF.woff",
@@ -24,10 +25,10 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
     children,
-    session, // Ensure session is passed in as a prop
+    session,
 }: {
     children: React.ReactNode;
-    session: any; // Adjust type if you have a specific session type
+    session: Session | null; // Replace `any` with `Session | null` to handle absence of session
 }) {
     return (
         <html lang="en">
@@ -35,7 +36,7 @@ export default function RootLayout({
                 <SessionWrapper session={session}>
                     <AuthProvider>
                         <Header />
-                        <main className="flex-grow">{children}</main> {/* Use flex-grow for main */}
+                        <main className="flex-grow">{children}</main>
                         <Footer />
                     </AuthProvider>
                 </SessionWrapper>

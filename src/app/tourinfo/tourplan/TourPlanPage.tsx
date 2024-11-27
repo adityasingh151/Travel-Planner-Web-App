@@ -1,11 +1,11 @@
 "use client"; // Ensuring this is a client component
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/app/AuthContext';
-import { GoogleGenerativeAI, GenerativeModel } from "@google/generative-ai"; 
+import { GoogleGenerativeAI } from "@google/generative-ai"; 
 import ReactMarkdown, { Components } from 'react-markdown';
 import BookThisTour from '../BookThisTour';
 
@@ -20,10 +20,6 @@ const markdownComponents: Partial<Components> = {
   li: ({ ...props }) => <li className="mb-1" {...props} />,
   strong: ({ ...props }) => <strong className="font-semibold text-pink-700" {...props} />,
   em: ({ ...props }) => <em className="italic text-pink-600" {...props} />,
-  // inlineCode: ({ children }) => {
-  //   return <code className="text-darkBlue bg-gray-200 p-1 rounded">{children}</code>;
-  // },
-  
   text: ({ children, ...props }) => {
     if (typeof children === 'string') {
       if (children.includes("##")) return <h3 className="text-xl font-semibold text-pink-500 mb-2">{children}</h3>;
@@ -32,7 +28,6 @@ const markdownComponents: Partial<Components> = {
     return <span {...props}>{children}</span>;
   }
 };
-
 
 type ChosenItem = {
   title: string;
@@ -57,17 +52,18 @@ const TourPlanPage = () => {
   const pathname = usePathname();
   const [itineraryResponse, setItineraryResponse] = useState("nothing is present.");
   const { chosenItems } = useAuth();
-  console.log("chosenItems: ", chosenItems)
+  console.log("chosenItems: ", chosenItems);
 
   // Adjusting type of chosenItemsObject to avoid implicit 'any' error
   const chosenItemsObject = chosenItems.reduce<Record<number, ChosenItem>>((acc, curr, index) => {
     acc[index] = curr;
     return acc;
   }, {});
-  
+
   const travelInfoText = JSON.stringify(Object.values(chosenItemsObject), null, 2);
 
-  const fetchItinerary = async () => {
+  // Memoizing fetchItinerary using useCallback
+  const fetchItinerary = useCallback(async () => {
     try {
       const payload = `Provide a detailed travel itinerary focusing on tourist attraction for below origin, destination, with below number of people, for below time period, for below details about train, places I want to visit and flights I want to take as below${travelInfoText}`;
       const result = await model.generateContent(payload);
@@ -77,14 +73,13 @@ const TourPlanPage = () => {
       console.error("Error fetching itinerary:", error);
       setItineraryResponse("Failed to load itinerary.");
     }
-  };
+  }, [travelInfoText]);
 
   useEffect(() => {
     if (chosenItems.length > 0) {
       fetchItinerary();
     }
-  }, [chosenItems]);
-
+  }, [chosenItems, fetchItinerary]);  // Added fetchItinerary to dependencies
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -124,7 +119,7 @@ const TourPlanPage = () => {
         </div>
 
         {/* Right Section: Book This Tour */}
-        <BookThisTour/>
+        <BookThisTour />
       </div>
     </div>
   );
