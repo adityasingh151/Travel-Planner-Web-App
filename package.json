@@ -48,6 +48,7 @@
     "@types/lodash": "^4.17.13",
     "@types/next-auth": "^3.13.0",
     "@types/node": "^20",
+    "@types/nodemailer": "^6.4.17",
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "@types/react-slick": "^0.23.13",

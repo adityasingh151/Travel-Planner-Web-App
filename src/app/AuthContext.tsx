@@ -68,6 +68,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = async (email: string, password: string) => {
     try {
       const response = await signIn("credentials", { email, password, redirect: false });
+      console.log("Response: ",response)
       if (response?.ok) {
         const session = await getSession();
         setUsername(session?.user?.name || "");
@@ -75,8 +76,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       } else {
         throw new Error(response?.error || "Login failed");
       }
-    } catch (error) {
-      console.error("Login Failed:", error);
+    } catch (error:any) {
+      console.error("Login Failed:", error.message);
+      throw new Error(`Login Failed: ${error.message}`);
     }
   };
 

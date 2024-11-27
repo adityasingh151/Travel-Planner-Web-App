@@ -29,14 +29,13 @@ export const sendEmail = async ({ email, emailType, userId }: any) => {
 
     // Create the transporter using MailtrapTransport
     const transporter = nodemailer.createTransport({
-        host: "sandbox.smtp.mailtrap.io",
-        port: 2525,
-        auth: {
-          user: "5967056621929b",
-          pass: "f162ae306cf599"
-        }
-      }
-    );
+      service: "gmail",
+      auth: {
+        user: "lightsout1811@gmail.com",
+        pass: process.env.GOOGLE_APP_PASSWORD, // Use an App Password if 2FA is enabled
+      },
+    });
+    
 
     // Define email subject and message based on email type
     const subject =
@@ -54,8 +53,8 @@ export const sendEmail = async ({ email, emailType, userId }: any) => {
     // Email options
     const mailOptions = {
       from: {
-        name: "Mailtrap Test",
-        address: "hello@example.com",
+        name: "Let's Go Travel Planner",
+        address: "lightsout1811@gmail.com",
       },
       to: email,
       subject: subject,
