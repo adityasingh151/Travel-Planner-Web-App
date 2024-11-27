@@ -1,4 +1,5 @@
 import React from 'react';
+import Image from 'next/image';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faLinkedin, faTwitter, faInstagram } from '@fortawesome/free-brands-svg-icons';
 import { faInfinity } from '@fortawesome/free-solid-svg-icons';
@@ -10,7 +11,13 @@ function Footer() {
         {/* Left Section - Let's Go Logo and Social Links */}
         <div className="flex flex-col items-start">
           <div className="flex items-center space-x-2">
-            <img src="/lets-go-icon.png" alt="Let's Go" className="h-8 w-auto" />
+            <Image
+              src="/lets-go-icon.png"
+              alt="Let's Go"
+              width={32} // Replace with appropriate width
+              height={32} // Replace with appropriate height
+              className="h-8 w-auto"
+            />
           </div>
           <div className="mt-4 flex space-x-4">
             {/* Social Media Links with aria-label for accessibility */}
@@ -70,7 +77,13 @@ function Footer() {
 
       {/* Mountain SVG at the bottom right */}
       <div className="absolute right-0 bottom-0">
-        <img src="/mountain.svg" alt="Mountain" className="h-24 w-auto" />
+        <Image
+          src="/mountain.svg"
+          alt="Mountain"
+          width={96} // Replace with appropriate width
+          height={96} // Replace with appropriate height
+          className="h-24 w-auto"
+        />
       </div>
     </footer>
   );

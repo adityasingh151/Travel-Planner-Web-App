@@ -1,28 +1,29 @@
 "use client";
 import { useState, useEffect } from "react";
+// import { AxiosError } from 'axios';
 import axios from "axios";
 import toast from "react-hot-toast";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { Toaster } from "react-hot-toast";
-import { signIn, useSession, getSession, signOut } from "next-auth/react"; // Import signIn from next-auth
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { storage } from "@/firebaseConfig/firebaseConfig";
-import { useAuth } from '@/app/AuthContext'; // Adjust the import path accordingly
+import { signIn, useSession } from "next-auth/react"; // Import signIn from next-auth
+// import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+// import { storage } from "@/firebaseConfig/firebaseConfig";
+// import { useAuth } from '@/app/AuthContext'; // Adjust the import path accordingly
 
-interface UserData {
-  firstName: string;
-  lastName: string;
-  email: string;
-  password: string;
-  isVerified: boolean;
-}
+// interface UserData {
+//   firstName: string;
+//   lastName: string;
+//   email: string;
+//   password: string;
+//   isVerified: boolean;
+// }
 
 // Define the SignupResponse interface
-interface SignupResponse {
-  message: string;
-}
+// interface SignupResponse {
+//   message: string;
+// }
 
 
 const SignupPage = () => {
@@ -53,52 +54,52 @@ const SignupPage = () => {
       return; // Prevent further execution
     }
   
-    console.log("session:", session);
-    const { name, email, provider } = session.user;
+    // console.log("session:", session);
+    // const { name, email, provider } = session.user;
   
-    const userData: UserData = {
-      firstName: name!.split(" ")[0],
-      lastName: name!.split(" ")[1] || "",
-      email: email!,
-      password: provider || "oauth", // Set the password based on the provider
-      isVerified: true,
-    };
+    // const userData: UserData = {
+    //   firstName: name!.split(" ")[0],
+    //   lastName: name!.split(" ")[1] || "",
+    //   email: email!,
+    //   password: provider || "oauth", // Set the password based on the provider
+    //   isVerified: true,
+    // };
   
-    const signupEndpoint = provider === "google"
-      ? "/api/users/google-signup"
-      : provider === "twitter"
-        ? "/api/users/twitter-signup"
-        : provider === "github"
-          ? "/api/users/github-signup"
-          : "/api/users/signup"; // Fallback
+    // const signupEndpoint = provider === "google"
+    //   ? "/api/users/google-signup"
+    //   : provider === "twitter"
+    //     ? "/api/users/twitter-signup"
+    //     : provider === "github"
+    //       ? "/api/users/github-signup"
+    //       : "/api/users/signup"; // Fallback
   
     // Call the signup endpoint
-    const checkAndSignUp = async () => {
-      try {
-        console.log("signupendpoint & data: ", signupEndpoint, userData);
-        const response = await axios.post<SignupResponse>(signupEndpoint, userData);
+    // const checkAndSignUp = async () => {
+    //   try {
+    //     console.log("signupendpoint & data: ", signupEndpoint, userData);
+    //     const response = await axios.post<SignupResponse>(signupEndpoint, userData);
   
-        toast.success(`${provider} Sign-In successful!`);
-        router.push("/"); // Redirect to the desired page
+    //     toast.success(`${provider} Sign-In successful!`);
+    //     router.push("/"); // Redirect to the desired page
   
-      } catch (error: any) {
-        if (error.status === 400) {
-          // User already exists, show error and sign them out
-          router.push("/login");
-          signOut();  // Optionally handle sign out
-          toast.error("User already exists. Please sign in.");
-          return;
-        }
-        console.error(`Error saving user data from ${provider}:`, error);
-        toast.error(`Failed to save user data. Please try again! ${error.status}`);
-        signOut(); // Sign out on error
-      }
-    };
+    //   } catch (error: any) {
+    //     if (error.status === 400) {
+    //       // User already exists, show error and sign them out
+    //       router.push("/login");
+    //       signOut();  // Optionally handle sign out
+    //       toast.error("User already exists. Please sign in.");
+    //       return;
+    //     }
+    //     console.error(`Error saving user data from ${provider}:`, error);
+    //     toast.error(`Failed to save user data. Please try again! ${error.status}`);
+    //     signOut(); // Sign out on error
+    //   }
+    // };
   
     // Call the function to handle signup
-    checkAndSignUp();
+    // checkAndSignUp();
   
-  }, [session, router]);
+  }, [session, router, pathname]);
   
   
   
@@ -112,7 +113,7 @@ const SignupPage = () => {
       toast.success(
         "Registration successful, please verify your mail within an hour!"
       );
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("SignUp Failed", error);
       toast.error(`SignUp Failed, Please try again!`);
       setloading(false);
@@ -123,7 +124,7 @@ const SignupPage = () => {
     setloading(true);
     try {
       await signIn("google", { redirect: true });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Google Sign-In Error:", error);
       toast.error("Google Sign-In Failed, Please try again!");
     } finally {
@@ -135,7 +136,7 @@ const SignupPage = () => {
     setloading(true);
     try {
       await signIn("twitter", { redirect: true });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Twitter Sign-In Error:", error);
       toast.error("Twitter Sign-In Failed, Please try again!");
     } finally {
@@ -147,7 +148,7 @@ const SignupPage = () => {
     setloading(true);
     try {
       await signIn("github", { redirect: true });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("GitHub Sign-In Error:", error);
       toast.error("GitHub Sign-In Failed, Please try again!");
     } finally {
@@ -188,11 +189,13 @@ const SignupPage = () => {
         <div className="w-1/2 bg-white p-16 relative">
           {/* Airplane SVG Above "Create an Account" */}
           <div className="absolute -top-12 right-0">
-            <img
-              src="/svgs/airplane.svg" // Replace with the actual airplane SVG path
-              alt="Airplane"
-              className="w-28 h-auto rotate-45"
-            />
+          <Image
+  src="/svgs/airplane.svg"
+  alt="Airplane"
+  width={112}
+  height={112}
+  className="w-28 h-auto rotate-45"
+/>
           </div>
 
           {/* Signup Heading */}
@@ -320,12 +323,20 @@ const SignupPage = () => {
 
           {/* City Landmarks (SVGs at Bottom) */}
           <div className="absolute bottom-0 left-0 flex space-x-6 ml-8 mb-4">
-            <img src="/tajmahal.svg" alt="Taj Mahal" className="w-20 h-auto" />
-            <img
-              src="/pisatower.svg"
-              alt="Pisa Tower"
-              className="w-20 h-auto"
-            />
+          <Image
+  src="/tajmahal.svg"
+  alt="Taj Mahal"
+  width={80}
+  height={80}
+  className="w-20 h-auto"
+/>
+            <Image
+  src="/pisatower.svg"
+  alt="Pisa Tower"
+  width={80}
+  height={80}
+  className="w-20 h-auto"
+/>  
           </div>
         </div>
       </div>

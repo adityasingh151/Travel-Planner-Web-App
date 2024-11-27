@@ -1,5 +1,5 @@
-// pages/about.tsx
 import React from 'react'
+import Image from 'next/image'
 
 const Promotion = () => {
   return (
@@ -29,7 +29,13 @@ const Promotion = () => {
           <div className="w-full md:w-1/2 mt-8 md:mt-0 flex justify-center">
             <div className="relative">
               <div className="rounded-full overflow-hidden w-80 h-80 border-8 border-gray-100 shadow-md">
-                <img src="./qutubminar.png" alt="India Tour" className="w-full h-full object-cover" />
+                <Image 
+                  src="/qutubminar.png" 
+                  alt="India Tour" 
+                  width={320} 
+                  height={320} 
+                  className="object-cover"
+                />
               </div>
             </div>
           </div>

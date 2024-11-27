@@ -1,4 +1,5 @@
 import React from 'react';
+import Image from 'next/image';
 
 const Romantic: React.FC = () => {
   return (
@@ -8,25 +9,31 @@ const Romantic: React.FC = () => {
         <div className="relative flex justify-center items-center">
           {/* Main Image */}
           <div className="relative z-10">
-            <img
+            <Image
               src="/couples.jpg"
               alt="Couple on the beach"
+              width={600}
+              height={400}
               className="rounded-lg shadow-md w-full object-cover"
             />
           </div>
           {/* Circular Image 1 */}
           <div className="absolute top-[-40px] left-[-40px] w-20 h-20">
-            <img
+            <Image
               src="/couples_sunset.jpg"
               alt="Sunset Couple"
+              width={80}
+              height={80}
               className="rounded-full border-4 border-white shadow-md"
             />
           </div>
           {/* Circular Image 2 */}
           <div className="absolute bottom-[-30px] left-[-30px] w-20 h-20">
-            <img
+            <Image
               src="/couples2.jpg"
               alt="Couple Hiking"
+              width={80}
+              height={80}
               className="rounded-full border-4 border-white shadow-md"
             />
           </div>
@@ -81,9 +88,11 @@ const Romantic: React.FC = () => {
               <p className="text-sm text-gray-500">14 - 29 June</p>
             </div>
             <div className="relative mb-6">
-              <img
+              <Image
                 src="/mumbai-trip.png"
                 alt="Mumbai trip"
+                width={400}
+                height={160}
                 className="rounded-lg w-full h-40 object-cover"
               />
             </div>
@@ -96,10 +105,6 @@ const Romantic: React.FC = () => {
               </button>
             </div>
           </div>
-          {/* Overlaying Plane Image */}
-          {/* <div className="absolute top-[40px] right-[30px]">
-            <img src="/plane.svg" alt="Plane" className="w-32 h-32 object-cover" />
-          </div> */}
         </div>
       </div>
     </div>

@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 export default function Services() {
   return (
     <section className="py-12 bg-gray-100">
@@ -10,9 +12,11 @@ export default function Services() {
       {/* Service Cards */}
       <div className="mt-12 grid grid-cols-4 gap-8 max-w-6xl mx-auto">
         <div className="flex flex-col items-center text-center">
-          <img
+          <Image
             src="/guided-tours-icon.png"
             alt="Guided Tours"
+            width={71}
+            height={70}
             className="h-[71px] w-[70px]"
           />
           <h3 className="mt-4 text-lg font-semibold">Guided Tours</h3>
@@ -23,9 +27,11 @@ export default function Services() {
         </div>
 
         <div className="flex flex-col items-center text-center">
-          <img
+          <Image
             src="/flights-icon.png"
             alt="Best Flights"
+            width={71}
+            height={70}
             className="h-[71px] w-[70px]"
           />
           <h3 className="mt-4 text-lg font-semibold">Best Flights Options</h3>
@@ -36,9 +42,11 @@ export default function Services() {
         </div>
 
         <div className="flex flex-col items-center text-center">
-          <img
+          <Image
             src="/adventure-icon.png"
             alt="Thrilling Adventures"
+            width={71}
+            height={70}
             className="h-[71px] w-[70px]"
           />
           <h3 className="mt-4 text-lg font-semibold">Thrilling Adventures</h3>
@@ -49,9 +57,11 @@ export default function Services() {
         </div>
 
         <div className="flex flex-col items-center text-center">
-          <img
+          <Image
             src="/religious-icon.png"
             alt="Religious Tours"
+            width={71}
+            height={70}
             className="h-[71px] w-[70px]"
           />
           <h3 className="mt-4 text-lg font-semibold">Religious Tours</h3>

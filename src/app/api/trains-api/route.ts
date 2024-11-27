@@ -17,8 +17,30 @@ interface TrainTrip {
   stops: Stop[];
 }
 
+interface TrainTripApiResponse {
+  travel_mode: string;
+  title: string;
+  duration: number;
+  formatted_duration: string;
+  start_stop: {
+    name: string;
+    stop_id: string;
+    time: string;
+  };
+  end_stop: {
+    name: string;
+    stop_id: string;
+    time: string;
+  };
+  stops: Array<{
+    name: string;
+    stop_id: string;
+    time: string;
+  }>;
+}
+
 // Utility function to transform API data to TrainTrip format
-const parseTrainTrip = (trip: any): TrainTrip => ({
+const parseTrainTrip = (trip: TrainTripApiResponse): TrainTrip => ({
   travelMode: trip.travel_mode,
   title: trip.title,
   duration: trip.duration,
@@ -33,7 +55,7 @@ const parseTrainTrip = (trip: any): TrainTrip => ({
     stop_id: trip.end_stop.stop_id,
     time: trip.end_stop.time,
   },
-  stops: trip.stops.map((stop: any) => ({
+  stops: trip.stops.map((stop) => ({
     name: stop.name,
     stop_id: stop.stop_id,
     time: stop.time,
@@ -60,8 +82,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "No train routes found" }, { status: 404 });
     }
 
-    // Extract the train trips information from the response
-    const trainTrips = data;
+    // Parse and transform train trips
+    const trainTrips: TrainTrip[] = data.directions.map((trip: TrainTripApiResponse) =>
+      parseTrainTrip(trip)
+    );
 
     return NextResponse.json({ results: trainTrips }, { status: 200 });
   } catch (error) {

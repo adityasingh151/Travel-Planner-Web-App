@@ -1,21 +1,11 @@
-"use client"; 
+"use client";
 import { createContext, useContext, useState, useEffect } from "react";
 import { useSession, signIn, signOut, getSession } from "next-auth/react";
-import { useSearchParams } from "next/navigation"; // To access the URL query parameters
 
 interface ChosenItem {
   title: string;
   type: string;
-  details: any;
-}
-
-interface QueryParams {
-  originRegion: string;
-  destinationCity: string;
-  startDate: string;
-  endDate: string;
-  guests: string;
-  activities: string;
+  details: Record<string, unknown>; // Replace `any` with a more specific type
 }
 
 interface AuthContextType {
@@ -25,8 +15,8 @@ interface AuthContextType {
   isLoggedIn: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
-  chosenItems: ChosenItem[]; 
-  setChosenItems: React.Dispatch<React.SetStateAction<ChosenItem[]>>; 
+  chosenItems: ChosenItem[];
+  setChosenItems: React.Dispatch<React.SetStateAction<ChosenItem[]>>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -36,24 +26,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [email, setEmail] = useState<string>("");
   const [profilePicture, setProfilePicture] = useState<string>("");
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
-  const [chosenItems, setChosenItems] = useState<ChosenItem[]>([]); 
-  const { data: session, status } = useSession();
-  
+  const [chosenItems, setChosenItems] = useState<ChosenItem[]>([]);
 
-  const searchParams = useSearchParams(); // Get URL search params
-
-
+  const { data: session } = useSession(); // `status` removed since it's unused
 
   useEffect(() => {
     const checkSession = async () => {
-      const session = await getSession();
-      if (session && session.user) {
-        setUsername(session.user.name || "");
-        setEmail(session.user.email || "");
-        setProfilePicture(session.user.image || "");
+      const currentSession = await getSession();
+      if (currentSession && currentSession.user) {
+        setUsername(currentSession.user.name || "");
+        setEmail(currentSession.user.email || "");
+        setProfilePicture(currentSession.user.image || "");
         setIsLoggedIn(true);
 
-        const savedItems = localStorage.getItem(session.user.email ?? "");
+        const savedItems = localStorage.getItem(currentSession.user.email ?? "");
         if (savedItems) {
           setChosenItems(JSON.parse(savedItems)); // Load items from local storage if available
         }
@@ -70,15 +56,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const response = await signIn("credentials", { email, password, redirect: false });
       console.log("Response: ",response)
       if (response?.ok) {
-        const session = await getSession();
-        setUsername(session?.user?.name || "");
+        const currentSession = await getSession();
+        setUsername(currentSession?.user?.name || "");
+        setEmail(currentSession?.user?.email || "");
+        setProfilePicture(currentSession?.user?.image || "");
         setIsLoggedIn(true);
       } else {
         throw new Error(response?.error || "Login failed");
       }
+<<<<<<< Updated upstream
     } catch (error:any) {
       console.error("Login Failed:", error.message);
       throw new Error(`Login Failed: ${error.message}`);
+=======
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error("Login Failed:", error.message);
+        throw new Error(`Login Failed: ${error.message}`);
+      }
+      throw new Error("An unexpected error occurred during login.");
+>>>>>>> Stashed changes
     }
   };
 
@@ -86,8 +83,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       await signOut({ redirect: false });
       setUsername("");
+      setEmail("");
+      setProfilePicture("");
       setIsLoggedIn(false);
-      setChosenItems([]); 
+      setChosenItems([]);
     } catch (error) {
       console.error("Logout Failed:", error);
     }
@@ -100,7 +99,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [chosenItems, isLoggedIn, email]);
 
   return (
-    <AuthContext.Provider value={{ username, email, profilePicture, isLoggedIn, login, logout, chosenItems, setChosenItems, }}>
+    <AuthContext.Provider value={{ username, email, profilePicture, isLoggedIn, login, logout, chosenItems, setChosenItems }}>
       {children}
     </AuthContext.Provider>
   );

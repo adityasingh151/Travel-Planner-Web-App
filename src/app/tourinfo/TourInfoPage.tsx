@@ -1,11 +1,11 @@
 "use client"; // Ensuring this is a client-side component
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/app/AuthContext";
-import { GoogleGenerativeAI, GenerativeModel } from "@google/generative-ai"; 
+import { GoogleGenerativeAI } from "@google/generative-ai"; 
 import ReactMarkdown, { Components } from "react-markdown";
 import BookThisTour from "./BookThisTour";
 
@@ -31,7 +31,8 @@ const TourInfoPage = () => {
 
   const destinationCity = chosenItems[0]?.details.destinationCity || "";
 
-  const fetchDestinationDetails = async () => {
+  // Memoizing fetchDestinationDetails to avoid unnecessary re-creations on each render
+  const fetchDestinationDetails = useCallback(async () => {
     if (!destinationCity) return;
 
     setIsLoading(true);
@@ -46,11 +47,12 @@ const TourInfoPage = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [destinationCity]);
 
+  // Adding fetchDestinationDetails to the dependency array of useEffect
   useEffect(() => {
     if (destinationCity) fetchDestinationDetails();
-  }, [destinationCity]);
+  }, [destinationCity, fetchDestinationDetails]);
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -132,10 +134,19 @@ const TourInfoPage = () => {
 
       {/* Footer with Bag and Plane SVG */}
       <div className="flex justify-end max-w-6xl mx-auto mt-10">
+<<<<<<< Updated upstream
         <img
           src="/bag-airplane.svg"
           alt="Bag and Plane"
           className="w-40 h-auto dark:invert"
+=======
+        <Image
+          src="/bag-airplane.svg"
+          alt="Bag and Plane"
+          width={160} // Added width and height for optimization
+          height={40}
+          className="dark:invert"
+>>>>>>> Stashed changes
         />
       </div>
     </div>

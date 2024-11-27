@@ -1,5 +1,3 @@
-// /src/app/api/users/github-signup/route.ts
-import type { NextApiRequest, NextApiResponse } from 'next';
 import User from '@/models/userModel';
 import connect from '@/dbConfig/dbConfig';
 
@@ -7,7 +5,7 @@ interface UserData {
     firstName: string;
     lastName: string;
     email: string;
-    password:string;
+    password: string;
     profilePicture: string;
     isVerified: boolean;
 }
@@ -17,10 +15,10 @@ interface UserData {
 export async function POST(req: Request) {
     try {
         await connect();
-        const body = await req.json();  // Parse the incoming JSON body
+        const body = await req.json(); // Parse the incoming JSON body
         console.log(body);
 
-        const { firstName, lastName, email,password, profilePicture, isVerified }: UserData = body;
+        const { firstName, lastName, email, password, profilePicture, isVerified }: UserData = body;
 
         // Check if the user already exists
         const user = await User.findOne({ email });

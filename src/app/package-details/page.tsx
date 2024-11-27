@@ -2,35 +2,60 @@
 import { useSearchParams } from "next/navigation";
 import NearbyPlaces from "./NearbyPlaces";
 import Hotels from "./Hotels";
-import Trains from "./Trains";
 import Flights from "./Flights";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/app/AuthContext";
 import PremiumLoading from "../PremiulLoading";
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
-interface Stop {
-  name: string;
-  time: string;
+interface Flight extends Record<string, unknown> {
+  airline: string;
+  airlineLogo: string;
+  flightNumber: string;
+  departureAirport: string;
+  arrivalAirport: string;
+  departureTime: string;
+  arrivalTime: string;
+  duration: number;
+  price: number;
+  roundType: string;
 }
-interface Train {
-  title: string;
-  start_stop: Stop;
-  end_stop: Stop;
-  formatted_duration: string;
-  stops: Stop[];
+
+interface Place extends Record<string, unknown> {
+  name: string;
+  vicinity: string;
+  rating: number;
+  user_ratings_total: number;
+  photoUrl: string;
+}
+
+interface Hotel extends Record<string, unknown> {
+  name: string;
+  description: string;
+  rate_per_night: number;
+  overall_rating: number;
+  reviews: number;
+}
+
+interface TravelDetails extends Record<string, unknown> {
+  originRegion: string | null;
+  destinationCity: string | null;
+  startDate: string | null;
+  endDate: string | null;
+  guests: number;
 }
 
 type ChosenItem = {
   title: string;
-  type: string;
-  details: any;
+  type: "flight" | "hotel" | "place" | "travelInfo";
+  details: Flight | Place | Hotel | TravelDetails;
 };
 
+
 const PackageDetails: React.FC = () => {
-  const router = useRouter()
+  const router = useRouter();
   const searchParams = useSearchParams();
   const originRegion = searchParams.get("originRegion");
   const destinationCity = searchParams.get("destinationCity");
@@ -40,13 +65,12 @@ const PackageDetails: React.FC = () => {
   const origin = originRegion ?? "";
   const destination = destinationCity ?? "";
 
-   // Initial travel details object
-   const travelDetails = {
+  const travelDetails: TravelDetails = {
     originRegion,
     destinationCity,
     startDate,
     endDate,
-    guests
+    guests,
   };
 
   const [chosenItems, setChosenItems] = useState<ChosenItem[]>([
@@ -56,30 +80,24 @@ const PackageDetails: React.FC = () => {
       details: travelDetails,
     },
   ]);
- 
 
-
-  // const [chosenItems, setChosenItems] = useState<ChosenItem[]>([]);
-  const [isLoading, setIsLoading] = useState(true); // Loading state
-  const { setChosenItems: updateContextChosenItems } = useAuth(); // Import from context
-
+  const [isLoading, setIsLoading] = useState(true);
+  const { setChosenItems: updateContextChosenItems } = useAuth();
 
   useEffect(() => {
-    // Simulate loading data (e.g., API call or initial setup)
     const timer = setTimeout(() => {
-      setIsLoading(false); // Set loading to false after components are "loaded"
-    }, 1000); // Adjust this timeout as necessary to match your loading time
-
-    return () => clearTimeout(timer); // Clean up the timeout if the component is unmounted
+      setIsLoading(false);
+    }, 1000);
+    return () => clearTimeout(timer);
   }, []);
 
-  const handleChooseItem = (item: {
-    title: string;
-    type: string;
-    details: any;
-  }) => {
+  const handleChooseItem = (item: ChosenItem) => {
     setChosenItems((prev) => {
+<<<<<<< Updated upstream
       const isTransportType = item.type === "flight" || item.type === "train";
+=======
+      const isTransportType = item.type === "flight";
+>>>>>>> Stashed changes
       const sameItemExists = prev.some(
         (i) => i.title === item.title && i.type === item.type
       );
@@ -91,10 +109,18 @@ const PackageDetails: React.FC = () => {
         );
       } else {
         if (isTransportType) {
+<<<<<<< Updated upstream
           // Remove any existing 'flight' or 'train' and add the new item
           return [...prev.filter((i) => i.type !== "flight" && i.type !== "train"), item];
         } else {
           // For other types, retain existing items and add the new one
+=======
+          return [
+            ...prev.filter((i) => i.type !== "flight"),
+            item,
+          ];
+        } else {
+>>>>>>> Stashed changes
           return [...prev, item];
         }
       }
@@ -103,28 +129,23 @@ const PackageDetails: React.FC = () => {
   
 
   const handleItinerary = () => {
-    // Check if at least one item with type="place" exists
-    const hasPlace = chosenItems.some(item => item.type === "place");
+    const hasPlace = chosenItems.some((item) => item.type === "place");
 
     if (!hasPlace) {
-      // Show toast message if no "place" item exists
-      console.log("No palce is selected.")
       toast.error("Please select at least one place.");
     } else {
-      // Update context and navigate to itinerary page
-      console.log(chosenItems)
-      updateContextChosenItems(chosenItems); // Save to context
+      updateContextChosenItems(chosenItems);
       router.push("/tourinfo/tourplan");
     }
   };
 
   if (isLoading) {
-    return <PremiumLoading />; // Show loading spinner until data is loaded
+    return <PremiumLoading />;
   }
 
   return (
     <div className="w-full p-4 sm:p-6 md:p-8 bg-white dark:bg-gray-900">
-       <ToastContainer position="top-center" autoClose={3000} />
+      <ToastContainer position="top-center" autoClose={3000} />
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 md:p-8">
         <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4 mt-8 text-center">
           Travel Package Details
@@ -132,14 +153,6 @@ const PackageDetails: React.FC = () => {
 
         {destination && (
           <div className="space-y-4 md:space-y-6">
-            <Trains
-              origin={origin}
-              destination={destination}
-              departureDate={startDate ?? ""}
-              arrivalDate={endDate ?? ""}
-              onChooseItem={handleChooseItem}
-              chosenItems={chosenItems}
-            />
             <NearbyPlaces
               destinationCity={destination}
               onChooseItem={handleChooseItem}

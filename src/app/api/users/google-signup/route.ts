@@ -1,5 +1,3 @@
-// /src/app/api/users/google-signup/route.ts
-import type { NextApiRequest, NextApiResponse } from 'next';
 import User from '@/models/userModel';
 import connect from '@/dbConfig/dbConfig';
 
@@ -16,8 +14,8 @@ interface UserData {
 export async function POST(req: Request) {
     try {
         await connect();
-        const body = await req.json();  // Parse the incoming JSON body
-        console.log("body: ",body);
+        const body = await req.json(); // Parse the incoming JSON body
+        console.log("body: ", body);
 
         const { firstName, lastName, email, password, isVerified }: UserData = body;
 
@@ -45,5 +43,3 @@ export async function POST(req: Request) {
         return new Response(JSON.stringify({ message: 'Internal server error' }), { status: 500 });
     }
 }
-
-

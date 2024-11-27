@@ -1,28 +1,37 @@
-"use client";
+// Mark this component as a Client Component
+'use client';
 
-import { useState, useEffect } from "react";
-import axios from "axios";
+import { useState, useEffect, useCallback } from "react";
+import axios from "axios";  // No need to import AxiosError
 import Link from "next/link";
-import Image from "next/image";
+
+// Define the type for the response from the verification API
+interface VerifyEmailResponse {
+  email: string;
+}
 
 export default function VerifyEmailPage() {
   const [token, setToken] = useState("");
   const [verified, setVerified] = useState(false);
   const [error, setError] = useState(false);
-  const [email, setemail] = useState("")
+  const [email, setEmail] = useState("");
 
-  const verifyUserEmail = async () => {
+  // Use useCallback to memoize the verifyUserEmail function to avoid unnecessary re-renders
+  const verifyUserEmail = useCallback(async () => {
     try {
-      const user = await axios.post("/api/users/verifyemail", { token });
-    //   console.log(user.data.email)
-    setemail(user.data.email)
+      const response = await axios.post<VerifyEmailResponse>("/api/users/verifyemail", { token });
+      setEmail(response.data.email);
       setError(false);
       setVerified(true);
-    } catch (error: any) {
+    } catch (err: unknown) {  // Correct type for the error as `unknown`
       setError(true);
-      console.error(error.response.data);
+      if (axios.isAxiosError(err)) {  // Type guard for AxiosError
+        console.error(err.response?.data || err.message);
+      } else {
+        console.error("An unexpected error occurred:", err);
+      }
     }
-  };
+  }, [token]); // Only rerun if `token` changes
 
   useEffect(() => {
     const urlToken = window.location.search.split("=")[1];
@@ -36,7 +45,7 @@ export default function VerifyEmailPage() {
     } else {
       setError(true);
     }
-  }, [token]);
+  }, [token, verifyUserEmail]); // Adding verifyUserEmail as a dependency
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
@@ -60,10 +69,6 @@ export default function VerifyEmailPage() {
             <h3 className="text-lg bg-red-500 text-white p-2 rounded">Error verifying email. Please try again.</h3>
           </div>
         )}
-
-        {/* <p className="text-gray-500 text-sm mt-6">
-          Need help? <Link href="/support" className="text-pink-600 hover:underline">Contact Support</Link>
-        </p> */}
       </div>
     </div>
   );
