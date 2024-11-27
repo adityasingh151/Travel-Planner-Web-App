@@ -79,24 +79,28 @@ const PackageDetails: React.FC = () => {
     details: any;
   }) => {
     setChosenItems((prev) => {
-      const isPlaceType = item.type === "place";
+      const isTransportType = item.type === "flight" || item.type === "train";
       const sameItemExists = prev.some(
         (i) => i.title === item.title && i.type === item.type
       );
-
+  
       if (sameItemExists) {
+        // Remove the item if it already exists
         return prev.filter(
           (i) => !(i.title === item.title && i.type === item.type)
         );
       } else {
-        if (isPlaceType) {
-          return [...prev, item];
+        if (isTransportType) {
+          // Remove any existing 'flight' or 'train' and add the new item
+          return [...prev.filter((i) => i.type !== "flight" && i.type !== "train"), item];
         } else {
-          return [...prev.filter((i) => i.type !== item.type), item];
+          // For other types, retain existing items and add the new one
+          return [...prev, item];
         }
       }
     });
   };
+  
 
   const handleItinerary = () => {
     // Check if at least one item with type="place" exists

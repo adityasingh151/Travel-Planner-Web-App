@@ -24,11 +24,19 @@ interface IUser extends Document {
     };
     plannedTrips?: {
         destination: string;
-        startDate: Date;
-        endDate: Date;
-        accommodation?: string;
-        activities?: string[];
-        status?: "upcoming" | "completed" | "canceled";
+  startDate: Date;
+  endDate: Date;
+  accommodation?: string;
+  activities?: string[];
+  status?: "upcoming" | "completed" | "canceled";
+  name?: string;
+  tickets?: number;
+  phone?: string;
+  chosenItems?: {
+    title: string;
+    type: string;
+    details: Record<string, any>;
+  }[];
     }[];
     pastTrips?: {
         destination: string;
@@ -52,7 +60,7 @@ const userSchema: Schema<IUser> = new Schema({
     },
     lastName: {
         type: String,
-        default:''
+        default: ''
     },
     email: {
         type: String,
@@ -65,11 +73,11 @@ const userSchema: Schema<IUser> = new Schema({
     },
     profilePicture: {
         type: String,
-        default:null
+        default: null
     },
     mobileNo: {
         type: Number,
-        default:null
+        default: null
     },
     isVerified: {
         type: Boolean,
@@ -103,6 +111,16 @@ const userSchema: Schema<IUser> = new Schema({
                 enum: ["upcoming", "completed", "canceled"],
                 default: "upcoming",
             },
+            name: { type: String, default: 'Anonymous' },
+            tickets: { type: Number, default: 1 },
+            phone: { type: String, default: 'Not provided' },
+            chosenItems: [
+                {
+                    title: { type: String, required: true },
+                    type: { type: String, required: true },
+                    details: { type: Schema.Types.Mixed, required: true },
+                },
+            ],
         },
     ],
     pastTrips: [
@@ -116,16 +134,12 @@ const userSchema: Schema<IUser> = new Schema({
             review: { type: String, default: "" },
         },
     ],
-    // wishlist: { type: [String], default: [] },
-    // createdAt: {
-    //     type: Date,
-    //     default: Date.now,
-    // },
     updatedAt: {
         type: Date,
         default: Date.now,
     },
 });
+
 
 // Middleware to update `updatedAt` before saving
 userSchema.pre<IUser>("save", function (next: HookNextFunction) {

@@ -35,6 +35,7 @@ const LoginPage = () => {
       router.push("/"); // Redirect after successful login
     } catch (error: any) {
       console.log("Login Failed, Please try again!");
+      router.push("/login")
       setloading(false);
       toast.error(error.message);
     }

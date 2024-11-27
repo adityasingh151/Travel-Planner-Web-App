@@ -35,26 +35,25 @@ export const authOptions: NextAuthOptions = {
         const { email, password } = credentials;
       
         try {
-          console.log("response nextauth: ")
           const response = await axios.post(`${process.env.DOMAIN}/api/users/login`, { email, password });
-          console.log("response nextauth: ",response.data, response.data.success)
-          
+      
           if (response.data && response.data.success) {
-            console.log("response data: ",response.data)
+            console.log("response data: ", response.data);
             return {
               id: response.data.id,
               name: response.data.name,
               email: response.data.email,
-              profilePicture:response.data.profilePicture
+              profilePicture: response.data.profilePicture,
             };
           } else {
             throw new Error(response.data.message || 'Invalid email or password');
           }
-        } catch (error) {
-          console.log("error is running")
-          throw new Error('Login failed');
+        } catch (error:any) {
+          console.error("Authorization error:", error.message);
+          throw new Error(error.response?.data?.message || 'Login failed');
         }
       }
+      
       
     })
     

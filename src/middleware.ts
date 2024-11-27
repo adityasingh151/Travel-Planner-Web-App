@@ -5,8 +5,8 @@ export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
 
   // Define public and private routes
-  const publicRoutes = ['/login', '/signup', '/verifyemail'];
-  const privateRoutes = ['/profile', '/build_pkg', '/package-details'];
+  const publicRoutes = ['/login', '/signup', '/verifyemail',];
+  const privateRoutes = ['/profile', '/build_pkg', '/package-details','/packagesarchive','/tourinfo','/tourinfo/tourplan','/tourinfo/tourlocation'];
 
   // Get the session token from the NextAuth.js cookie
   const session = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET });
@@ -46,6 +46,9 @@ export const config = {
     '/services',
     '/packagesarchive',
     '/build_pkg',
-    '/package-details'
+    '/package-details',
+    '/tourinfo',
+    '/tourinfo/tourplan',
+    '/tourinfo/tourlocation'
   ],
 };
